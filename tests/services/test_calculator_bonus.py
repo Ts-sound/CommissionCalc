@@ -20,16 +20,16 @@ def test_bonus_25000(bonuses):
     assert calculate_high_performance_bonus(25000, bonuses) == 500.0
 
 def test_bonus_at_30000(bonuses):
-    assert calculate_high_performance_bonus(30000, bonuses) == 1500.0
+    assert calculate_high_performance_bonus(30000, bonuses) == 1000.0
 
 def test_bonus_35000(bonuses):
-    assert calculate_high_performance_bonus(35000, bonuses) == 1500.0
+    assert calculate_high_performance_bonus(35000, bonuses) == 1000.0
 
 def test_bonus_at_50000(bonuses):
-    assert calculate_high_performance_bonus(50000, bonuses) == 3500.0
+    assert calculate_high_performance_bonus(50000, bonuses) == 2000.0
 
 def test_bonus_55000(bonuses):
-    assert calculate_high_performance_bonus(55000, bonuses) == 3500.0
+    assert calculate_high_performance_bonus(55000, bonuses) == 2000.0
 
 def test_bonus_empty_list():
     assert calculate_high_performance_bonus(30000, []) == 0.0

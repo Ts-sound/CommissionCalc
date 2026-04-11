@@ -58,16 +58,22 @@ class CommissionCalculator:
         if person.role == Role.GENERAL_MANAGER:
             team_performance = sum(
                 p.performance for p in self.people.values() 
-                if p.role != Role.GENERAL_MANAGER
+                if p.performance >= 3000
             )
         else:
             group = self.groups.get(person.group_id)
             if group:
-                team_performance = sum(
-                    self.people[mid].performance 
-                    for mid in group.members 
-                    if mid in self.people
-                )
+                team_performance = 0.0
+                
+                leader = self.people.get(group.leader_id)
+                if leader and leader.performance >= 3000:
+                    team_performance += leader.performance
+                
+                for mid in group.members:
+                    if mid in self.people:
+                        member = self.people[mid]
+                        if member.performance >= 3000:
+                            team_performance += member.performance
             else:
                 team_performance = 0.0
         
@@ -76,8 +82,12 @@ class CommissionCalculator:
     def _calculate_management_bonus(self, person: Person) -> float:
         group = self.groups.get(person.group_id)
         if group:
+            eligible_members = sum(
+                1 for mid in group.members 
+                if mid in self.people and self.people[mid].performance >= 3000
+            )
             return calculate_management_bonus(
-                len(group.members), self.config.management_bonus_per_person
+                eligible_members, self.config.management_bonus_per_person
             )
         return 0.0
 
@@ -107,8 +117,7 @@ def calculate_management_bonus(member_count: int, bonus_per_person: float) -> fl
     return member_count * bonus_per_person
 
 def calculate_high_performance_bonus(performance: float, bonuses: List[Bonus]) -> float:
-    total_bonus = 0.0
-    for bonus in bonuses:
-        if performance >= bonus.threshold:
-            total_bonus += bonus.amount
-    return total_bonus
+        for bonus in reversed(bonuses):
+            if performance >= bonus.threshold:
+                return bonus.amount
+        return 0.0

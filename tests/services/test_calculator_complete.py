@@ -36,9 +36,9 @@ def test_calculate_leader_commission(calculator, sample_people, sample_groups):
     
     result = calculator.calculate_person(sample_people["leader1"])
     assert result.personal_commission == 1000.0
-    assert result.team_commission == 800.0  # (5000+3000) * 0.1
-    assert result.management_bonus == 200.0  # 2 members * 100
-    assert result.total == 2000.0
+    assert result.team_commission == 2600.0  # (5000+5000+3000达标业绩) * 0.2
+    assert result.management_bonus == 200.0  # 2达标成员 * 100
+    assert result.total == 3800.0
 
 def test_calculate_general_manager_commission(calculator, sample_people, sample_groups):
     calculator.set_groups(sample_groups)
@@ -46,6 +46,6 @@ def test_calculate_general_manager_commission(calculator, sample_people, sample_
     
     result = calculator.calculate_person(sample_people["gm"])
     assert result.personal_commission == 1000.0
-    assert result.team_commission == 2600.0
+    assert result.team_commission == 3600.0  # (5000+5000+5000+3000达标业绩) * 0.2
     assert result.management_bonus == 0.0
-    assert result.total == 3600.0
+    assert result.total == 4600.0
