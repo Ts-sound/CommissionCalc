@@ -490,7 +490,7 @@ class MainWindow:
             data = []
             for person in self.people.values():
                 group = self.groups.get(person.group_id)
-                    group_name = group.name if group else ""
+                group_name = group.name if group else ""
                 data.append({
                     "姓名": person.name,
                     "身份": person.role.value,
@@ -507,7 +507,7 @@ class MainWindow:
         
         for person in self.people.values():
             group = self.groups.get(person.group_id)
-                    group_name = group.name if group else ""
+            group_name = group.name if group else ""
             self.people_tree.insert("", tk.END, values=(person.name, person.role.value, group_name))
     
     def _refresh_rules_trees(self):
