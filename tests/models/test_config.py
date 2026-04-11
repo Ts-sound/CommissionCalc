@@ -14,9 +14,9 @@ def test_config_creation():
         team_commission=CommissionRule(
             rule_type=RuleType.TEAM,
             tiers=[
-                Tier(min_amount=0, max_amount=3000, rate=0.0),
-                Tier(min_amount=3000, max_amount=10000, rate=0.1),
-                Tier(min_amount=10000, max_amount=None, rate=0.2)
+                Tier(min_amount=0, max_amount=10000, rate=0.0),
+                Tier(min_amount=10000, max_amount=50000, rate=0.1),
+                Tier(min_amount=50000, max_amount=None, rate=0.2)
             ]
         ),
         management_bonus_per_person=100.0,
