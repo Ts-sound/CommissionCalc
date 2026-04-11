@@ -7,17 +7,26 @@ from src.services.calculator import CommissionCalculator
 from src.models.config import Config
 from src.models.person import Person
 from src.models.group import Group
+from src.ui.utils import configure_treeview_center, configure_treeview_grid
+from src.utils.logger import get_logger
 
 class MainWindow:
     def __init__(self):
+        self.logger = get_logger()
+        self.logger.info("系统启动")
+        
         self.root = tk.Tk()
         self.root.title("绩效提成计算系统")
         self.root.geometry("900x700")
+        
+        self._configure_styles()
         
         self.config_repo = ConfigRepository("config")
         self.excel_repo = ExcelRepository()
         self.people_repo = PeopleRepository("config")
         self.config = self.config_repo.load()
+        self.logger.info("配置加载完成")
+        
         self.calculator = CommissionCalculator(self.config)
         
         self.people = {}
@@ -29,6 +38,13 @@ class MainWindow:
         self._create_menu()
         self._create_notebook()
         self._create_status_bar()
+    
+    def _configure_styles(self):
+        """配置全局样式"""
+        style = ttk.Style()
+        style.configure("Treeview", rowheight=25)
+        style.configure("Treeview.Item", anchor=tk.CENTER)
+        style.configure("Treeview.Heading", anchor=tk.CENTER)
     
     def _load_people_config(self):
         self.people, self.groups = self.people_repo.load()
@@ -74,7 +90,7 @@ class MainWindow:
         performance_frame = ttk.LabelFrame(self.commission_frame, text="业绩数据", padding="5")
         performance_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        self.performance_tree = ttk.Treeview(performance_frame, columns=("姓名", "业绩", "身份", "组别"), show="headings", height=8)
+        self.performance_tree = ttk.Treeview(performance_frame, columns=("姓名", "业绩", "身份", "组别"), show="headings treeview", height=8)
         self.performance_tree.heading("姓名", text="姓名")
         self.performance_tree.heading("业绩", text="业绩")
         self.performance_tree.heading("身份", text="身份")
@@ -83,6 +99,7 @@ class MainWindow:
         self.performance_tree.column("业绩", width=150)
         self.performance_tree.column("身份", width=150)
         self.performance_tree.column("组别", width=150)
+        configure_treeview_center(self.performance_tree)
         self.performance_tree.pack(fill=tk.BOTH, expand=True)
         
         button_frame = ttk.Frame(self.commission_frame)
@@ -96,7 +113,7 @@ class MainWindow:
         result_frame = ttk.LabelFrame(self.commission_frame, text="提成结果", padding="5")
         result_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        self.result_tree = ttk.Treeview(result_frame, columns=("姓名", "个人提成", "团队提成", "管理提成", "奖金", "总计"), show="headings", height=8)
+        self.result_tree = ttk.Treeview(result_frame, columns=("姓名", "个人提成", "团队提成", "管理提成", "奖金", "总计"), show="headings treeview", height=8)
         self.result_tree.heading("姓名", text="姓名")
         self.result_tree.heading("个人提成", text="个人提成")
         self.result_tree.heading("团队提成", text="团队提成")
@@ -109,19 +126,21 @@ class MainWindow:
         self.result_tree.column("管理提成", width=100)
         self.result_tree.column("奖金", width=100)
         self.result_tree.column("总计", width=100)
+        configure_treeview_center(self.result_tree)
         self.result_tree.pack(fill=tk.BOTH, expand=True)
     
     def _create_people_tab(self):
         tree_frame = ttk.Frame(self.people_frame)
         tree_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        self.people_tree = ttk.Treeview(tree_frame, columns=("姓名", "身份", "组别"), show="headings", height=15)
+        self.people_tree = ttk.Treeview(tree_frame, columns=("姓名", "身份", "组别"), show="headings treeview", height=15)
         self.people_tree.heading("姓名", text="姓名")
         self.people_tree.heading("身份", text="身份")
         self.people_tree.heading("组别", text="组别")
         self.people_tree.column("姓名", width=200)
         self.people_tree.column("身份", width=200)
         self.people_tree.column("组别", width=200)
+        configure_treeview_center(self.people_tree)
         self.people_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
         scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=self.people_tree.yview)
@@ -142,6 +161,8 @@ class MainWindow:
         ttk.Label(tip_frame, text="- 总主管只能有一位").pack(anchor=tk.W)
         ttk.Label(tip_frame, text="- 组长必须分配到组").pack(anchor=tk.W)
         ttk.Label(tip_frame, text="- 成员必须分配到组").pack(anchor=tk.W)
+        ttk.Label(tip_frame, text="- 点击'保存配置'按钮才能生效").pack(anchor=tk.W)
+        ttk.Label(tip_frame, text="- 配置保存后下次启动自动加载").pack(anchor=tk.W)
         
         self._update_people_tree()
     
@@ -160,13 +181,14 @@ class MainWindow:
         personal_frame.pack(fill=tk.X, padx=5, pady=5)
         ttk.Label(personal_frame, text="说明：范围 <=业绩< 上限，上限为空表示无上限").pack(anchor=tk.W)
         
-        self.personal_tree = ttk.Treeview(personal_frame, columns=("下限", "上限", "提成比例"), show="headings", height=4)
+        self.personal_tree = ttk.Treeview(personal_frame, columns=("下限", "上限", "提成比例"), show="headings treeview", height=4)
         self.personal_tree.heading("下限", text="下限")
         self.personal_tree.heading("上限", text="上限")
         self.personal_tree.heading("提成比例", text="提成比例")
         self.personal_tree.column("下限", width=150)
         self.personal_tree.column("上限", width=150)
         self.personal_tree.column("提成比例", width=150)
+        configure_treeview_center(self.personal_tree)
         self.personal_tree.pack(fill=tk.X)
         
         ttk.Button(personal_frame, text="添加阶梯", command=lambda: self.add_tier("personal")).pack(side=tk.LEFT, padx=5)
@@ -176,13 +198,14 @@ class MainWindow:
         team_frame = ttk.LabelFrame(rules_inner_frame, text="团队提成阶梯配置", padding="5")
         team_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        self.team_tree = ttk.Treeview(team_frame, columns=("下限", "上限", "提成比例"), show="headings", height=4)
+        self.team_tree = ttk.Treeview(team_frame, columns=("下限", "上限", "提成比例"), show="headings treeview", height=4)
         self.team_tree.heading("下限", text="下限")
         self.team_tree.heading("上限", text="上限")
         self.team_tree.heading("提成比例", text="提成比例")
         self.team_tree.column("下限", width=150)
         self.team_tree.column("上限", width=150)
         self.team_tree.column("提成比例", width=150)
+        configure_treeview_center(self.team_tree)
         self.team_tree.pack(fill=tk.X)
         
         ttk.Button(team_frame, text="添加阶梯", command=lambda: self.add_tier("team")).pack(side=tk.LEFT, padx=5)
@@ -207,11 +230,12 @@ class MainWindow:
         bonus_frame = ttk.LabelFrame(rules_inner_frame, text="高业绩奖金配置（达到阈值即获得奖金，可累加）", padding="5")
         bonus_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        self.bonus_tree = ttk.Treeview(bonus_frame, columns=("业绩阈值", "奖金金额"), show="headings", height=4)
+        self.bonus_tree = ttk.Treeview(bonus_frame, columns=("业绩阈值", "奖金金额"), show="headings treeview", height=4)
         self.bonus_tree.heading("业绩阈值", text="业绩阈值")
         self.bonus_tree.heading("奖金金额", text="奖金金额")
         self.bonus_tree.column("业绩阈值", width=150)
         self.bonus_tree.column("奖金金额", width=150)
+        configure_treeview_center(self.bonus_tree)
         self.bonus_tree.pack(fill=tk.X)
         
         ttk.Button(bonus_frame, text="添加奖金阶梯", command=self.add_bonus).pack(side=tk.LEFT, padx=5)
@@ -235,11 +259,14 @@ class MainWindow:
         from tkinter import filedialog, messagebox
         file_path = filedialog.askopenfilename(title="选择业绩Excel文件", filetypes=[("Excel文件", "*.xlsx *.xls")])
         if file_path:
+            self.logger.info(f"导入Excel文件: {file_path}")
             try:
                 self.performance_data = self.excel_repo.import_performance_data(file_path)
                 self._update_performance_tree()
                 self.status_var.set(f"已导入{len(self.performance_data)}条业绩数据")
+                self.logger.info(f"成功导入{len(self.performance_data)}条业绩数据")
             except ValueError as e:
+                self.logger.error(f"导入失败: {str(e)}")
                 messagebox.showerror("导入失败", str(e))
     
     def import_text_performance(self):
@@ -247,6 +274,7 @@ class MainWindow:
         dialog = TextImportDialog(self.root, self.people)
         if dialog.result:
             self.performance_data = dialog.result
+            self.logger.info(f"粘贴文本导入{len(self.performance_data)}条业绩数据")
             self._update_performance_tree()
             self.status_var.set(f"已导入{len(self.performance_data)}条业绩数据")
     
@@ -266,6 +294,7 @@ class MainWindow:
         from tkinter import messagebox
         
         if not self.performance_data:
+            self.logger.warning("未导入业绩数据")
             messagebox.showwarning("提示", "请先导入业绩数据")
             return
         
@@ -275,9 +304,11 @@ class MainWindow:
                 unconfigured.append(name)
         
         if unconfigured:
+            self.logger.warning(f"人员配置不完整: {', '.join(unconfigured)}")
             messagebox.showwarning("人员配置不完整", f"以下人员缺少身份配置：{', '.join(unconfigured)}，请先在人员管理中配置")
             return
         
+        self.logger.info("开始计算提成")
         self.calculator.set_people(self.people)
         self.calculator.set_groups(self.groups)
         
@@ -299,6 +330,7 @@ class MainWindow:
                 ))
         
         self.status_var.set(f"已计算{len(self.performance_data)}人提成")
+        self.logger.info(f"完成{len(self.performance_data)}人提成计算")
     
     def export_results(self):
         from tkinter import filedialog, messagebox
@@ -378,6 +410,7 @@ class MainWindow:
         from tkinter import messagebox
         
         self.people_repo.save(self.people, self.groups)
+        self.logger.info(f"保存人员配置: {len(self.people)}人, {len(self.groups)}组")
         self.calculator.set_people(self.people)
         self.calculator.set_groups(self.groups)
         messagebox.showinfo("保存成功", "人员配置已保存")

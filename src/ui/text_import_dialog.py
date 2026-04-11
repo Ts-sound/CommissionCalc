@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+from src.ui.utils import configure_treeview_center
 
 class TextImportDialog:
     def __init__(self, parent, people):
@@ -33,13 +34,14 @@ class TextImportDialog:
         result_frame = ttk.Frame(self.dialog)
         result_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        self.result_tree = ttk.Treeview(result_frame, columns=("姓名", "业绩", "状态"), show="headings", height=10)
+        self.result_tree = ttk.Treeview(result_frame, columns=("姓名", "业绩", "状态"), show="headings treeview", height=10)
         self.result_tree.heading("姓名", text="姓名")
         self.result_tree.heading("业绩", text="业绩")
         self.result_tree.heading("状态", text="状态")
         self.result_tree.column("姓名", width=150)
         self.result_tree.column("业绩", width=150)
         self.result_tree.column("状态", width=150)
+        configure_treeview_center(self.result_tree)
         self.result_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
         result_scrollbar = ttk.Scrollbar(result_frame, orient=tk.VERTICAL, command=self.result_tree.yview)
