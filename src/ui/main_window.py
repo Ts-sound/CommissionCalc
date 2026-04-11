@@ -235,7 +235,7 @@ class MainWindow:
                 messagebox.showerror("导入失败", str(e))
     
     def import_text_performance(self):
-        from src.ui.dialogs import TextImportDialog
+        from src.ui.text_import_dialog import TextImportDialog
         dialog = TextImportDialog(self.root, self.people)
         if dialog.result:
             self.performance_data = dialog.result
