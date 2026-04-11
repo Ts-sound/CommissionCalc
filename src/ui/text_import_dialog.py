@@ -14,7 +14,15 @@ class TextImportDialog:
         
         self.people = people
         
-        ttk.Label(self.dialog, text="请粘贴业绩文本（支持制表符分隔格式）").pack(padx=5, pady=5)
+        ttk.Label(self.dialog, text="说明：识别'姓名'列和业绩列（列名可自定义）").pack(padx=5, pady=5)
+        
+        label_frame = ttk.Frame(self.dialog)
+        label_frame.pack(padx=5, pady=5)
+        ttk.Label(label_frame, text="业绩列名：").pack(side=tk.LEFT)
+        self.performance_label_entry = ttk.Entry(label_frame, width=15)
+        self.performance_label_entry.insert(0, "累计业绩")
+        self.performance_label_entry.pack(side=tk.LEFT, padx=5)
+        
         ttk.Label(self.dialog, text="示例格式：部门\t小组\t姓名\t累计业绩\t核对").pack(padx=5)
         
         text_frame = ttk.Frame(self.dialog)
@@ -73,7 +81,7 @@ class TextImportDialog:
             for i, col in enumerate(cols):
                 if col.strip() in ["姓名", "名字"]:
                     name_col_index = i
-                elif col.strip() in ["累计业绩", "业绩", "金额", "业绩金额"]:
+                elif col.strip() == self.performance_label_entry.get().strip():
                     performance_col_index = i
         
         if name_col_index is None:
@@ -81,7 +89,8 @@ class TextImportDialog:
             return
         
         if performance_col_index is None:
-            messagebox.showwarning("提示", "无法识别业绩列，请确保文本包含'累计业绩'或'业绩'列")
+            performance_label = self.performance_label_entry.get().strip()
+            messagebox.showwarning("提示", f"无法识别业绩列，请确保文本包含'{performance_label}'列")
             return
         
         for item in self.result_tree.get_children():
