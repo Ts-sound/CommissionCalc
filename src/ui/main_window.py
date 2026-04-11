@@ -177,6 +177,11 @@ class MainWindow:
         self.rules_canvas.create_window((0, 0), window=rules_inner_frame, anchor=tk.NW)
         rules_inner_frame.bind("<Configure>", lambda e: self.rules_canvas.configure(scrollregion=self.rules_canvas.bbox("all")))
         
+        def on_mousewheel(event):
+            self.rules_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        
+        self.rules_canvas.bind_all("<MouseWheel>", on_mousewheel)
+        
         personal_frame = ttk.LabelFrame(rules_inner_frame, text="个人提成阶梯配置", padding="5")
         personal_frame.pack(fill=tk.X, padx=5, pady=5)
         ttk.Label(personal_frame, text="说明：范围 <=业绩< 上限，上限为空表示无上限").pack(anchor=tk.W)
@@ -212,6 +217,14 @@ class MainWindow:
         ttk.Button(team_frame, text="编辑阶梯", command=lambda: self.edit_tier("team")).pack(side=tk.LEFT, padx=5)
         ttk.Button(team_frame, text="删除阶梯", command=lambda: self.delete_tier("team")).pack(side=tk.LEFT, padx=5)
         
+        threshold_frame = ttk.Frame(team_frame)
+        threshold_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(threshold_frame, text="个人业绩达标线（元）：").pack(side=tk.LEFT)
+        self.threshold_entry = ttk.Entry(threshold_frame, width=10)
+        self.threshold_entry.insert(0, str(self.config.eligible_performance_threshold))
+        self.threshold_entry.pack(side=tk.LEFT, padx=5)
+        ttk.Label(threshold_frame, text="（低于此业绩不计入团队提成）").pack(side=tk.LEFT)
+        
         management_frame = ttk.LabelFrame(rules_inner_frame, text="管理提成", padding="5")
         management_frame.pack(fill=tk.X, padx=5, pady=5)
         ttk.Label(management_frame, text="每人管理提成金额（元）：").pack(side=tk.LEFT)
@@ -219,15 +232,7 @@ class MainWindow:
         self.management_entry.insert(0, str(self.config.management_bonus_per_person))
         self.management_entry.pack(side=tk.LEFT, padx=5)
         
-        threshold_frame = ttk.LabelFrame(rules_inner_frame, text="团队业绩达标线", padding="5")
-        threshold_frame.pack(fill=tk.X, padx=5, pady=5)
-        ttk.Label(threshold_frame, text="个人业绩达标线（元）：").pack(side=tk.LEFT)
-        self.threshold_entry = ttk.Entry(threshold_frame, width=10)
-        self.threshold_entry.insert(0, str(self.config.eligible_performance_threshold))
-        self.threshold_entry.pack(side=tk.LEFT, padx=5)
-        ttk.Label(threshold_frame, text="（低于此业绩不计入团队提成）").pack(side=tk.LEFT)
-        
-        bonus_frame = ttk.LabelFrame(rules_inner_frame, text="高业绩奖金配置（达到阈值即获得奖金，可累加）", padding="5")
+        bonus_frame = ttk.LabelFrame(rules_inner_frame, text="高业绩奖金配置（达到阈值即获得奖金，不累加）", padding="5")
         bonus_frame.pack(fill=tk.X, padx=5, pady=5)
         
         self.bonus_tree = ttk.Treeview(bonus_frame, columns=("业绩阈值", "奖金金额"), show="headings", height=4)
