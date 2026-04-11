@@ -88,7 +88,8 @@ class MainWindow:
         button_frame = ttk.Frame(self.commission_frame)
         button_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        ttk.Button(button_frame, text="导入业绩", command=self.import_performance).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="导入Excel", command=self.import_performance).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="粘贴文本", command=self.import_text_performance).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="计算提成", command=self.calculate_commission).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="导出结果", command=self.export_results).pack(side=tk.LEFT, padx=5)
         
@@ -232,6 +233,14 @@ class MainWindow:
                 self.status_var.set(f"已导入{len(self.performance_data)}条业绩数据")
             except ValueError as e:
                 messagebox.showerror("导入失败", str(e))
+    
+    def import_text_performance(self):
+        from src.ui.dialogs import TextImportDialog
+        dialog = TextImportDialog(self.root, self.people)
+        if dialog.result:
+            self.performance_data = dialog.result
+            self._update_performance_tree()
+            self.status_var.set(f"已导入{len(self.performance_data)}条业绩数据")
     
     def _update_performance_tree(self):
         for item in self.performance_tree.get_children():
