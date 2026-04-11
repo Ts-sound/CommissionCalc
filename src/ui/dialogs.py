@@ -31,7 +31,7 @@ class PersonDialog:
         ttk.Label(self.dialog, text="组别：").grid(row=2, column=0, padx=5, pady=5, sticky=tk.W)
         group_names = [g.name for g in groups.values()]
         group_names.append("(无)")
-        self.group_combo = ttk.Combobox(self.dialog, values=group_names, state="readonly")
+        self.group_combo = ttk.Combobox(self.dialog, values=group_names)
         self.group_combo.grid(row=2, column=1, padx=5, pady=5, sticky=tk.EW)
         
         if person:
@@ -69,23 +69,43 @@ class PersonDialog:
                 return
         
         group_id = None
-        if group_text != "(无)":
+        group_name_to_create = None
+        
+        if group_text and group_text != "(无)":
             group = next((g for g in self.groups.values() if g.name == group_text), None)
             if group:
                 group_id = group.id
+            elif role == Role.TEAM_LEADER:
+                group_name_to_create = group_text
+            else:
+                messagebox.showwarning("提示", f"组别'{group_text}'不存在，成员必须选择现有组别")
+                return
         
-        if role == Role.TEAM_LEADER and not group_id:
-            messagebox.showwarning("提示", "组长必须分配到组")
-            return
+        if role == Role.TEAM_LEADER:
+            if not group_text or group_text == "(无)":
+                messagebox.showwarning("提示", "组长必须分配到组")
+                return
         
-        if role == Role.MEMBER and not group_id:
-            messagebox.showwarning("提示", "成员必须分配到组")
-            return
+        if role == Role.MEMBER:
+            if not group_text or group_text == "(无)":
+                messagebox.showwarning("提示", "成员必须分配到组")
+                return
         
         if self.person:
             person_id = self.person.id
         else:
             person_id = str(uuid.uuid4())
+        
+        if group_name_to_create:
+            leader_id = person_id if role == Role.TEAM_LEADER else None
+            new_group = Group(
+                id=str(uuid.uuid4()),
+                name=group_name_to_create,
+                leader_id=leader_id,
+                members=[]
+            )
+            self.groups[new_group.id] = new_group
+            group_id = new_group.id
         
         self.result = Person(id=person_id, name=name, role=role, group_id=group_id)
         self.dialog.destroy()
