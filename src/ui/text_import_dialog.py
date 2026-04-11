@@ -27,7 +27,11 @@ class TextImportDialog:
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.text_area.configure(yscrollcommand=scrollbar.set)
         
-        ttk.Button(self.dialog, text="识别解析", command=self.parse_text).pack(pady=5)
+        button_frame = ttk.Frame(self.dialog)
+        button_frame.pack(pady=5)
+        
+        ttk.Button(button_frame, text="识别解析", command=self.parse_text).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="确认结果", command=self.confirm).pack(side=tk.LEFT, padx=5)
         
         ttk.Label(self.dialog, text="识别结果：").pack(padx=5)
         
@@ -49,12 +53,6 @@ class TextImportDialog:
         self.result_tree.configure(yscrollcommand=result_scrollbar.set)
         
         ttk.Label(self.dialog, text="提示：状态为'已匹配'的人员已有身份配置").pack(padx=5)
-        
-        final_button_frame = ttk.Frame(self.dialog)
-        final_button_frame.pack(pady=10)
-        
-        ttk.Button(final_button_frame, text="确认结果并导入", command=self.confirm).pack(side=tk.LEFT, padx=5)
-        ttk.Button(final_button_frame, text="取消", command=self.cancel).pack(side=tk.LEFT, padx=5)
         
         parent.wait_window(self.dialog)
     
