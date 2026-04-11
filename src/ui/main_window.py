@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from src.repositories.config_repo import ConfigRepository
 from src.repositories.excel_repo import ExcelRepository
+from src.repositories.people_repo import PeopleRepository
 from src.services.calculator import CommissionCalculator
 from src.models.config import Config
 from src.models.person import Person
@@ -15,6 +16,7 @@ class MainWindow:
         
         self.config_repo = ConfigRepository("config")
         self.excel_repo = ExcelRepository()
+        self.people_repo = PeopleRepository("config")
         self.config = self.config_repo.load()
         self.calculator = CommissionCalculator(self.config)
         
@@ -22,9 +24,16 @@ class MainWindow:
         self.groups = {}
         self.performance_data = {}
         
+        self._load_people_config()
+        
         self._create_menu()
         self._create_notebook()
         self._create_status_bar()
+    
+    def _load_people_config(self):
+        self.people, self.groups = self.people_repo.load()
+        self.calculator.set_people(self.people)
+        self.calculator.set_groups(self.groups)
     
     def _create_menu(self):
         menubar = tk.Menu(self.root)
@@ -125,12 +134,15 @@ class MainWindow:
         ttk.Button(button_frame, text="编辑人员", command=self.edit_person).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="删除人员", command=self.delete_person).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="保存配置", command=self.save_people_config).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="导出Excel", command=self.export_people_to_excel).pack(side=tk.LEFT, padx=5)
         
         tip_frame = ttk.LabelFrame(self.people_frame, text="提示", padding="5")
         tip_frame.pack(fill=tk.X, padx=5, pady=5)
         ttk.Label(tip_frame, text="- 总主管只能有一位").pack(anchor=tk.W)
         ttk.Label(tip_frame, text="- 组长必须分配到组").pack(anchor=tk.W)
         ttk.Label(tip_frame, text="- 成员必须分配到组").pack(anchor=tk.W)
+        
+        self._update_people_tree()
     
     def _create_rules_tab(self):
         self.rules_canvas = tk.Canvas(self.rules_frame)
@@ -347,34 +359,35 @@ class MainWindow:
     
     def save_people_config(self):
         from tkinter import messagebox
-        import json
-        import uuid
         
-        people_data = {
-            "people": [
-                {
-                    "id": p.id,
-                    "name": p.name,
-                    "role": p.role.value,
-                    "group_id": p.group_id
-                }
-                for p in self.people.values()
-            ],
-            "groups": [
-                {
-                    "id": g.id,
-                    "name": g.name,
-                    "leader_id": g.leader_id,
-                    "members": g.members
-                }
-                for g in self.groups.values()
-            ]
-        }
-        
-        with open("config/people.json", "w", encoding="utf-8") as f:
-            json.dump(people_data, f, ensure_ascii=False, indent=2)
-        
+        self.people_repo.save(self.people, self.groups)
+        self.calculator.set_people(self.people)
+        self.calculator.set_groups(self.groups)
         messagebox.showinfo("保存成功", "人员配置已保存")
+    
+    def export_people_to_excel(self):
+        from tkinter import filedialog, messagebox
+        import pandas as pd
+        
+        file_path = filedialog.asksaveasfilename(
+            title="保存人员配置Excel文件",
+            defaultextension=".xlsx",
+            filetypes=[("Excel文件", "*.xlsx")]
+        )
+        
+        if file_path:
+            data = []
+            for person in self.people.values():
+                group_name = self.groups.get(person.group_id, {}).name if person.group_id else ""
+                data.append({
+                    "姓名": person.name,
+                    "身份": person.role.value,
+                    "组别": group_name
+                })
+            
+            df = pd.DataFrame(data)
+            df.to_excel(file_path, index=False)
+            messagebox.showinfo("导出成功", f"人员配置已导出到 {file_path}")
     
     def _update_people_tree(self):
         for item in self.people_tree.get_children():
