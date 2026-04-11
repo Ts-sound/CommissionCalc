@@ -48,6 +48,9 @@ class MainWindow:
     
     def _load_people_config(self):
         self.people, self.groups = self.people_repo.load()
+        self.logger.info(f"加载人员配置: {len(self.people)}人, {len(self.groups)}组")
+        for g in self.groups.values():
+            self.logger.debug(f"  组别[{g.name}]: 组长={self.people.get(g.leader_id, {}).name if g.leader_id else '无'}, 成员数={len(g.members)}, 成员={[self.people.get(m, {}).name for m in g.members]}")
         self.calculator.set_people(self.people)
         self.calculator.set_groups(self.groups)
     
@@ -373,6 +376,7 @@ class MainWindow:
         if dialog.result:
             person = dialog.result
             self.people[person.id] = person
+            self.logger.info(f"添加人员: {person.name}, 身份={person.role.value}, 组别={self.groups.get(person.group_id, {}).name if person.group_id else '无'}")
             self._update_people_tree()
     
     def edit_person(self):
@@ -389,8 +393,12 @@ class MainWindow:
         person = next((p for p in self.people.values() if p.name == name), None)
         
         if person:
+            old_group = self.groups.get(person.group_id, {}).name if person.group_id else "无"
             dialog = PersonDialog(self.root, self.people, self.groups, person)
             if dialog.result:
+                new_person = dialog.result
+                new_group = self.groups.get(new_person.group_id, {}).name if new_person.group_id else "无"
+                self.logger.info(f"编辑人员: {new_person.name}, 身份={new_person.role.value}, 组别从'{old_group}'改为'{new_group}'")
                 self.people[person.id] = dialog.result
                 self._update_people_tree()
     
@@ -406,9 +414,15 @@ class MainWindow:
         name = self.people_tree.item(item)["values"][0]
         
         if messagebox.askyesno("确认删除", f"确定删除人员{name}吗？"):
-            person_id = next((p.id for p in self.people.values() if p.name == name), None)
-            if person_id:
-                del self.people[person_id]
+            person = next((p for p in self.people.values() if p.name == name), None)
+            if person:
+                if person.group_id:
+                    group = self.groups.get(person.group_id)
+                    if group and person.id in group.members:
+                        group.remove_member(person.id)
+                        self.logger.debug(f"  从组'{group.name}'移除成员'{name}'")
+                del self.people[person.id]
+                self.logger.info(f"删除人员: {name}")
                 self._update_people_tree()
     
     def save_people_config(self):

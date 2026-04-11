@@ -4,7 +4,10 @@ from src.models.person import Person
 from src.models.role import Role
 from src.models.group import Group
 from src.models.commission import Tier, Bonus
+from src.utils.logger import get_logger
 import uuid
+
+logger = get_logger()
 
 class PersonDialog:
     def __init__(self, parent, people, groups, person=None):
@@ -111,11 +114,13 @@ class PersonDialog:
             group = self.groups.get(group_id)
             if group and person_id not in group.members:
                 group.add_member(person_id)
+                logger.debug(f"  添加成员'{name}'到组'{group.name}'")
         
         if self.person and self.person.role == Role.MEMBER and self.person.group_id != group_id:
             old_group = self.groups.get(self.person.group_id)
             if old_group and person_id in old_group.members:
                 old_group.remove_member(person_id)
+                logger.debug(f"  从组'{old_group.name}'移除成员'{name}'")
         
         self.result = Person(id=person_id, name=name, role=role, group_id=group_id)
         self.dialog.destroy()
