@@ -90,7 +90,7 @@ class MainWindow:
         performance_frame = ttk.LabelFrame(self.commission_frame, text="业绩数据", padding="5")
         performance_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        self.performance_tree = ttk.Treeview(performance_frame, columns=("姓名", "业绩", "身份", "组别"), show="headings treeview", height=8)
+        self.performance_tree = ttk.Treeview(performance_frame, columns=("姓名", "业绩", "身份", "组别"), show="headings", height=8)
         self.performance_tree.heading("姓名", text="姓名")
         self.performance_tree.heading("业绩", text="业绩")
         self.performance_tree.heading("身份", text="身份")
@@ -113,7 +113,7 @@ class MainWindow:
         result_frame = ttk.LabelFrame(self.commission_frame, text="提成结果", padding="5")
         result_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        self.result_tree = ttk.Treeview(result_frame, columns=("姓名", "个人提成", "团队提成", "管理提成", "奖金", "总计"), show="headings treeview", height=8)
+        self.result_tree = ttk.Treeview(result_frame, columns=("姓名", "个人提成", "团队提成", "管理提成", "奖金", "总计"), show="headings", height=8)
         self.result_tree.heading("姓名", text="姓名")
         self.result_tree.heading("个人提成", text="个人提成")
         self.result_tree.heading("团队提成", text="团队提成")
@@ -133,7 +133,7 @@ class MainWindow:
         tree_frame = ttk.Frame(self.people_frame)
         tree_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        self.people_tree = ttk.Treeview(tree_frame, columns=("姓名", "身份", "组别"), show="headings treeview", height=15)
+        self.people_tree = ttk.Treeview(tree_frame, columns=("姓名", "身份", "组别"), show="headings", height=15)
         self.people_tree.heading("姓名", text="姓名")
         self.people_tree.heading("身份", text="身份")
         self.people_tree.heading("组别", text="组别")
@@ -181,7 +181,7 @@ class MainWindow:
         personal_frame.pack(fill=tk.X, padx=5, pady=5)
         ttk.Label(personal_frame, text="说明：范围 <=业绩< 上限，上限为空表示无上限").pack(anchor=tk.W)
         
-        self.personal_tree = ttk.Treeview(personal_frame, columns=("下限", "上限", "提成比例"), show="headings treeview", height=4)
+        self.personal_tree = ttk.Treeview(personal_frame, columns=("下限", "上限", "提成比例"), show="headings", height=4)
         self.personal_tree.heading("下限", text="下限")
         self.personal_tree.heading("上限", text="上限")
         self.personal_tree.heading("提成比例", text="提成比例")
@@ -198,7 +198,7 @@ class MainWindow:
         team_frame = ttk.LabelFrame(rules_inner_frame, text="团队提成阶梯配置", padding="5")
         team_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        self.team_tree = ttk.Treeview(team_frame, columns=("下限", "上限", "提成比例"), show="headings treeview", height=4)
+        self.team_tree = ttk.Treeview(team_frame, columns=("下限", "上限", "提成比例"), show="headings", height=4)
         self.team_tree.heading("下限", text="下限")
         self.team_tree.heading("上限", text="上限")
         self.team_tree.heading("提成比例", text="提成比例")
@@ -230,7 +230,7 @@ class MainWindow:
         bonus_frame = ttk.LabelFrame(rules_inner_frame, text="高业绩奖金配置（达到阈值即获得奖金，可累加）", padding="5")
         bonus_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        self.bonus_tree = ttk.Treeview(bonus_frame, columns=("业绩阈值", "奖金金额"), show="headings treeview", height=4)
+        self.bonus_tree = ttk.Treeview(bonus_frame, columns=("业绩阈值", "奖金金额"), show="headings", height=4)
         self.bonus_tree.heading("业绩阈值", text="业绩阈值")
         self.bonus_tree.heading("奖金金额", text="奖金金额")
         self.bonus_tree.column("业绩阈值", width=150)

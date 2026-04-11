@@ -34,7 +34,7 @@ class TextImportDialog:
         result_frame = ttk.Frame(self.dialog)
         result_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        self.result_tree = ttk.Treeview(result_frame, columns=("姓名", "业绩", "状态"), show="headings treeview", height=10)
+        self.result_tree = ttk.Treeview(result_frame, columns=("姓名", "业绩", "状态"), show="headings", height=10)
         self.result_tree.heading("姓名", text="姓名")
         self.result_tree.heading("业绩", text="业绩")
         self.result_tree.heading("状态", text="状态")
