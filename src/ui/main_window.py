@@ -141,8 +141,7 @@ class MainWindow:
         button_frame = ttk.Frame(self.commission_frame)
         button_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        ttk.Button(button_frame, text="导入Excel", command=self.import_performance).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="粘贴文本", command=self.import_text_performance).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="粘贴文本导入", command=self.import_text_performance).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="计算提成", command=self.calculate_commission).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="导出结果", command=self.export_results).pack(side=tk.LEFT, padx=5)
         
@@ -292,7 +291,7 @@ class MainWindow:
     
     def _create_status_bar(self):
         self.status_var = tk.StringVar()
-        self.status_var.set("请导入Excel业绩文件开始计算")
+        self.status_var.set("请粘贴文本导入业绩数据开始计算")
         status_bar = ttk.Label(self.root, textvariable=self.status_var, relief=tk.SUNKEN, anchor=tk.W)
         status_bar.pack(side=tk.BOTTOM, fill=tk.X)
     
@@ -649,7 +648,7 @@ class MainWindow:
         help_text = """
 使用说明：
 
-1. 导入业绩：点击"导入业绩"按钮，选择Excel文件（包含姓名和业绩列）
+1. 导入业绩：点击"粘贴文本导入"，粘贴文本（包含姓名和业绩列）
 2. 配置人员：在"人员管理"标签页中添加人员，设置身份和组别
 3. 计算提成：点击"计算提成"按钮，系统自动计算所有人员提成
 4. 导出结果：点击"导出结果"按钮，导出提成明细到Excel文件

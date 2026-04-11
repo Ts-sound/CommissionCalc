@@ -23,7 +23,9 @@ class TextImportDialog:
         self.performance_label_entry.insert(0, "累计业绩")
         self.performance_label_entry.pack(side=tk.LEFT, padx=5)
         
-        ttk.Label(self.dialog, text="示例格式：部门\t小组\t姓名\t累计业绩\t核对").pack(padx=5)
+        ttk.Label(self.dialog, text="示例：姓名\t累计业绩").pack(padx=5)
+        ttk.Label(self.dialog, text="      A\t40000").pack(padx=5)
+        ttk.Label(self.dialog, text="      B\t20000").pack(padx=5)
         
         text_frame = ttk.Frame(self.dialog)
         text_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
