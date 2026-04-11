@@ -30,7 +30,8 @@ class ConfigRepository:
             "high_performance_bonuses": [
                 {"threshold": b.threshold, "amount": b.amount}
                 for b in config.high_performance_bonuses
-            ]
+            ],
+            "eligible_performance_threshold": config.eligible_performance_threshold
         }
         
         with open(config_file, 'w', encoding='utf-8') as f:
@@ -61,5 +62,6 @@ class ConfigRepository:
             management_bonus_per_person=data["management_bonus_per_person"],
             high_performance_bonuses=[
                 Bonus(**b) for b in data["high_performance_bonuses"]
-            ]
+            ],
+            eligible_performance_threshold=data.get("eligible_performance_threshold", 3000.0)
         )

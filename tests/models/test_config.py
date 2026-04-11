@@ -24,13 +24,16 @@ def test_config_creation():
             Bonus(threshold=20000, amount=500),
             Bonus(threshold=30000, amount=1000),
             Bonus(threshold=50000, amount=2000)
-        ]
+        ],
+        eligible_performance_threshold=3000.0
     )
     assert config.management_bonus_per_person == 100.0
     assert len(config.high_performance_bonuses) == 3
+    assert config.eligible_performance_threshold == 3000.0
 
 def test_config_default_values():
     config = Config.default()
     assert config.management_bonus_per_person == 100.0
     assert len(config.personal_commission.tiers) == 2
     assert len(config.team_commission.tiers) == 3
+    assert config.eligible_performance_threshold == 3000.0

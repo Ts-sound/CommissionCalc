@@ -55,10 +55,12 @@ class CommissionCalculator:
         return result
     
     def _calculate_team_commission(self, person: Person) -> float:
+        threshold = self.config.eligible_performance_threshold
+        
         if person.role == Role.GENERAL_MANAGER:
             team_performance = sum(
                 p.performance for p in self.people.values() 
-                if p.performance >= 3000
+                if p.performance >= threshold
             )
         else:
             group = self.groups.get(person.group_id)
@@ -66,13 +68,13 @@ class CommissionCalculator:
                 team_performance = 0.0
                 
                 leader = self.people.get(group.leader_id)
-                if leader and leader.performance >= 3000:
+                if leader and leader.performance >= threshold:
                     team_performance += leader.performance
                 
                 for mid in group.members:
                     if mid in self.people:
                         member = self.people[mid]
-                        if member.performance >= 3000:
+                        if member.performance >= threshold:
                             team_performance += member.performance
             else:
                 team_performance = 0.0

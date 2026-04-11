@@ -196,6 +196,14 @@ class MainWindow:
         self.management_entry.insert(0, str(self.config.management_bonus_per_person))
         self.management_entry.pack(side=tk.LEFT, padx=5)
         
+        threshold_frame = ttk.LabelFrame(rules_inner_frame, text="团队业绩达标线", padding="5")
+        threshold_frame.pack(fill=tk.X, padx=5, pady=5)
+        ttk.Label(threshold_frame, text="个人业绩达标线（元）：").pack(side=tk.LEFT)
+        self.threshold_entry = ttk.Entry(threshold_frame, width=10)
+        self.threshold_entry.insert(0, str(self.config.eligible_performance_threshold))
+        self.threshold_entry.pack(side=tk.LEFT, padx=5)
+        ttk.Label(threshold_frame, text="（低于此业绩不计入团队提成）").pack(side=tk.LEFT)
+        
         bonus_frame = ttk.LabelFrame(rules_inner_frame, text="高业绩奖金配置（达到阈值即获得奖金，可累加）", padding="5")
         bonus_frame.pack(fill=tk.X, padx=5, pady=5)
         
@@ -520,6 +528,11 @@ class MainWindow:
         except ValueError:
             pass
         
+        try:
+            self.config.eligible_performance_threshold = float(self.threshold_entry.get())
+        except ValueError:
+            pass
+        
         self.config_repo.save(self.config)
         self.calculator.config = self.config
         messagebox.showinfo("保存成功", "提成规则配置已保存")
@@ -531,6 +544,8 @@ class MainWindow:
             self.config = Config.default()
             self.management_entry.delete(0, tk.END)
             self.management_entry.insert(0, str(self.config.management_bonus_per_person))
+            self.threshold_entry.delete(0, tk.END)
+            self.threshold_entry.insert(0, str(self.config.eligible_performance_threshold))
             self._refresh_rules_trees()
     
     def show_help(self):

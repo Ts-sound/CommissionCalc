@@ -9,6 +9,7 @@ class Config:
     team_commission: CommissionRule
     management_bonus_per_person: float
     high_performance_bonuses: List[Bonus]
+    eligible_performance_threshold: float
     
     @classmethod
     def default(cls) -> Config:
@@ -33,5 +34,6 @@ class Config:
                 Bonus(threshold=20000, amount=500),
                 Bonus(threshold=30000, amount=1000),
                 Bonus(threshold=50000, amount=2000)
-            ]
+            ],
+            eligible_performance_threshold=3000.0
         )
