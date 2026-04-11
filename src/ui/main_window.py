@@ -7,6 +7,7 @@ from src.services.calculator import CommissionCalculator
 from src.models.config import Config
 from src.models.person import Person
 from src.models.group import Group
+from src.models.role import Role
 from src.ui.utils import configure_treeview_center, configure_treeview_grid
 from src.utils.logger import get_logger
 
@@ -49,8 +50,39 @@ class MainWindow:
     def _load_people_config(self):
         self.people, self.groups = self.people_repo.load()
         self.logger.info(f"加载人员配置: {len(self.people)}人, {len(self.groups)}组")
+        
+        fixed = False
+        for person in self.people.values():
+            if person.role == Role.MEMBER and person.group_id:
+                group = self.groups.get(person.group_id)
+                if group and person.id not in group.members:
+                    group.add_member(person.id)
+                    self.logger.info(f"自动修复: 添加成员'{person.name}'到组'{group.name}'")
+                    fixed = True
+        
+        for group in self.groups.values():
+            invalid_members = [m for m in group.members if m not in self.people]
+            for m in invalid_members:
+                group.remove_member(m)
+                self.logger.info(f"自动修复: 从组'{group.name}'移除无效成员ID'{m}'")
+                fixed = True
+            
+            for mid in group.members:
+                person = self.people.get(mid)
+                if person and person.group_id != group.id:
+                    group.remove_member(mid)
+                    self.logger.info(f"自动修复: 从组'{group.name}'移除不匹配成员'{person.name}'")
+                    fixed = True
+        
+        if fixed:
+            self.people_repo.save(self.people, self.groups)
+            self.logger.info("已保存修复后的配置")
+        
         for g in self.groups.values():
-            self.logger.debug(f"  组别[{g.name}]: 组长={self.people.get(g.leader_id, {}).name if g.leader_id else '无'}, 成员数={len(g.members)}, 成员={[self.people.get(m, {}).name for m in g.members]}")
+            leader_name = self.people.get(g.leader_id, {}).name if g.leader_id else "无"
+            member_names = [self.people.get(m, {}).name for m in g.members]
+            self.logger.debug(f"  组别[{g.name}]: 组长={leader_name}, 成员数={len(g.members)}, 成员={member_names}")
+        
         self.calculator.set_people(self.people)
         self.calculator.set_groups(self.groups)
     
