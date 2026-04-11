@@ -82,12 +82,8 @@ class CommissionCalculator:
     def _calculate_management_bonus(self, person: Person) -> float:
         group = self.groups.get(person.group_id)
         if group:
-            eligible_members = sum(
-                1 for mid in group.members 
-                if mid in self.people and self.people[mid].performance >= 3000
-            )
             return calculate_management_bonus(
-                eligible_members, self.config.management_bonus_per_person
+                len(group.members), self.config.management_bonus_per_person
             )
         return 0.0
 
