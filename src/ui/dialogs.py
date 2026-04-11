@@ -40,7 +40,8 @@ class PersonDialog:
         if person:
             self.name_entry.insert(0, person.name)
             self.role_combo.set(person.role.value)
-            group_name = groups.get(person.group_id, {}).name if person.group_id else "(无)"
+            group = groups.get(person.group_id)
+            group_name = group.name if group else "(无)"
             self.group_combo.set(group_name)
         
         ttk.Button(self.dialog, text="确定", command=self.ok).grid(row=3, column=0, padx=5, pady=10)

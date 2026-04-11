@@ -79,8 +79,9 @@ class MainWindow:
             self.logger.info("已保存修复后的配置")
         
         for g in self.groups.values():
-            leader_name = self.people.get(g.leader_id, {}).name if g.leader_id else "无"
-            member_names = [self.people.get(m, {}).name for m in g.members]
+            leader = self.people.get(g.leader_id)
+            leader_name = leader.name if leader else "无"
+            member_names = [self.people.get(m).name if self.people.get(m) else f"(无效:{m})" for m in g.members]
             self.logger.debug(f"  组别[{g.name}]: 组长={leader_name}, 成员数={len(g.members)}, 成员={member_names}")
         
         self.calculator.set_people(self.people)
@@ -325,7 +326,8 @@ class MainWindow:
         for name, performance in self.performance_data.items():
             person = next((p for p in self.people.values() if p.name == name), None)
             if person:
-                group_name = self.groups.get(person.group_id, {}).name if person.group_id else ""
+                group = self.groups.get(person.group_id)
+                group_name = group.name if group else ""
                 self.performance_tree.insert("", tk.END, values=(name, performance, person.role.value, group_name))
             else:
                 self.performance_tree.insert("", tk.END, values=(name, performance, "", ""))
@@ -391,7 +393,8 @@ class MainWindow:
                 values = self.result_tree.item(item)["values"]
                 person = next((p for p in self.people.values() if p.name == values[0]), None)
                 if person:
-                    group_name = self.groups.get(person.group_id, {}).name if person.group_id else ""
+                    group = self.groups.get(person.group_id)
+                    group_name = group.name if group else ""
                     results.append({
                         "姓名": values[0],
                         "业绩": person.performance,
@@ -413,7 +416,7 @@ class MainWindow:
         if dialog.result:
             person = dialog.result
             self.people[person.id] = person
-            self.logger.info(f"添加人员: {person.name}, 身份={person.role.value}, 组别={self.groups.get(person.group_id, {}).name if person.group_id else '无'}")
+            self.logger.info(f"添加人员: {person.name}, 身份={person.role.value}, 组别={self.groups.get(person.group_id).name if self.groups.get(person.group_id) else '无'}")
             self._update_people_tree()
     
     def edit_person(self):
@@ -430,12 +433,14 @@ class MainWindow:
         person = next((p for p in self.people.values() if p.name == name), None)
         
         if person:
-            old_group = self.groups.get(person.group_id, {}).name if person.group_id else "无"
+            old_group = self.groups.get(person.group_id)
+            old_group_name = old_group.name if old_group else "无"
             dialog = PersonDialog(self.root, self.people, self.groups, person)
             if dialog.result:
                 new_person = dialog.result
-                new_group = self.groups.get(new_person.group_id, {}).name if new_person.group_id else "无"
-                self.logger.info(f"编辑人员: {new_person.name}, 身份={new_person.role.value}, 组别从'{old_group}'改为'{new_group}'")
+                new_group = self.groups.get(new_person.group_id)
+                new_group_name = new_group.name if new_group else "无"
+                self.logger.info(f"编辑人员: {new_person.name}, 身份={new_person.role.value}, 组别从'{old_group_name}'改为'{new_group_name}'")
                 self.people[person.id] = dialog.result
                 self._update_people_tree()
     
@@ -484,7 +489,8 @@ class MainWindow:
         if file_path:
             data = []
             for person in self.people.values():
-                group_name = self.groups.get(person.group_id, {}).name if person.group_id else ""
+                group = self.groups.get(person.group_id)
+                    group_name = group.name if group else ""
                 data.append({
                     "姓名": person.name,
                     "身份": person.role.value,
@@ -500,7 +506,8 @@ class MainWindow:
             self.people_tree.delete(item)
         
         for person in self.people.values():
-            group_name = self.groups.get(person.group_id, {}).name if person.group_id else ""
+            group = self.groups.get(person.group_id)
+                    group_name = group.name if group else ""
             self.people_tree.insert("", tk.END, values=(person.name, person.role.value, group_name))
     
     def _refresh_rules_trees(self):
