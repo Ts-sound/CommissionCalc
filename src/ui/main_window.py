@@ -349,6 +349,12 @@ class MainWindow:
             return
         
         self.logger.info("开始计算提成")
+        
+        for name, performance in self.performance_data.items():
+            person = next((p for p in self.people.values() if p.name == name), None)
+            if person:
+                person.performance = performance
+        
         self.calculator.set_people(self.people)
         self.calculator.set_groups(self.groups)
         
@@ -358,7 +364,6 @@ class MainWindow:
         for name, performance in self.performance_data.items():
             person = next((p for p in self.people.values() if p.name == name), None)
             if person:
-                person.performance = performance
                 result = self.calculator.calculate_person(person)
                 self.result_tree.insert("", tk.END, values=(
                     name,
