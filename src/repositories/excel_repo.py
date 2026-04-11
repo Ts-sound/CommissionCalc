@@ -21,4 +21,10 @@ class ExcelRepository:
     
     def export_results(self, results: List[Dict], file_path: str):
         df = pd.DataFrame(results)
-        df.to_excel(file_path, index=False)
+        
+        numeric_cols = ["业绩", "个人提成", "团队提成", "管理提成", "高业绩奖金", "总提成"]
+        for col in numeric_cols:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors="coerce")
+        
+        df.to_excel(file_path, index=False, engine="openpyxl")
