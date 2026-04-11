@@ -107,6 +107,16 @@ class PersonDialog:
             self.groups[new_group.id] = new_group
             group_id = new_group.id
         
+        if role == Role.MEMBER and group_id:
+            group = self.groups.get(group_id)
+            if group and person_id not in group.members:
+                group.add_member(person_id)
+        
+        if self.person and self.person.role == Role.MEMBER and self.person.group_id != group_id:
+            old_group = self.groups.get(self.person.group_id)
+            if old_group and person_id in old_group.members:
+                old_group.remove_member(person_id)
+        
         self.result = Person(id=person_id, name=name, role=role, group_id=group_id)
         self.dialog.destroy()
     
