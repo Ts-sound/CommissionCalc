@@ -70,11 +70,11 @@ class CommissionCalculator:
         return result
     
     def _calculate_team_commission(self, person: Person) -> float:
-        threshold = self.config.eligible_performance_threshold
-        logger.debug(f"  计算团队提成，达标线={threshold}")
-        
         if person.role == Role.GENERAL_MANAGER:
-            logger.debug(f"  总主管团队业绩计算开始")
+            threshold = self.config.gm_eligible_threshold
+            commission_rule = self.config.gm_commission
+            logger.debug(f"  计算总主管团队提成，达标线={threshold}")
+            
             eligible_people = [p for p in self.people.values() if p.performance >= threshold]
             logger.debug(f"  达标人数={len(eligible_people)}/{len(self.people)}")
             
@@ -84,6 +84,10 @@ class CommissionCalculator:
             team_performance = sum(p.performance for p in eligible_people)
             logger.debug(f"  团队总业绩={team_performance}")
         else:
+            threshold = self.config.eligible_performance_threshold
+            commission_rule = self.config.team_commission
+            logger.debug(f"  计算团队提成，达标线={threshold}")
+            
             group = self.groups.get(person.group_id)
             if group:
                 logger.debug(f"  组长团队业绩计算开始，组别={group.name}")
@@ -111,7 +115,7 @@ class CommissionCalculator:
                 logger.warning(f"  组长{person.name}未找到组别配置")
                 team_performance = 0.0
         
-        commission = calculate_team_commission(team_performance, self.config.team_commission)
+        commission = calculate_team_commission(team_performance, commission_rule)
         logger.debug(f"  团队提成={commission}")
         return commission
     

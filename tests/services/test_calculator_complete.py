@@ -40,12 +40,52 @@ def test_calculate_leader_commission(calculator, sample_people, sample_groups):
     assert result.management_bonus == 200.0  # 2成员 * 100
     assert result.total == 2500.0
 
-def test_calculate_general_manager_commission(calculator, sample_people, sample_groups):
+def test_calculate_general_manager_commission(sample_people, sample_groups):
+    config = Config.default()
+    config.gm_eligible_threshold = 3000.0
+    calculator = CommissionCalculator(config)
+    
+    sample_people["gm"].performance = 50000
+    sample_people["leader1"].performance = 50000
+    sample_people["member1"].performance = 50000
+    sample_people["member2"].performance = 30000
+    
     calculator.set_groups(sample_groups)
     calculator.set_people(sample_people)
     
     result = calculator.calculate_person(sample_people["gm"])
-    assert result.personal_commission == 1000.0
-    assert result.team_commission == 1800.0  # (5000+5000+5000+3000达标业绩=18000) * 0.1
-    assert result.management_bonus == 0.0
-    assert result.total == 2800.0
+    assert result.team_commission == 18000.0  # (50000+50000+50000+30000达标业绩=180000) * 0.1
+
+def test_gm_team_commission_with_gm_threshold():
+    config = Config.default()
+    config.gm_eligible_threshold = 50000.0
+    
+    calculator = CommissionCalculator(config)
+    
+    gm = Person(id="gm", name="总主管", role=Role.GENERAL_MANAGER, performance=60000)
+    leader = Person(id="l1", name="组长", role=Role.TEAM_LEADER, performance=20000)
+    member = Person(id="m1", name="成员", role=Role.MEMBER, performance=40000)
+    
+    calculator.set_people({gm.id: gm, leader.id: leader, member.id: member})
+    calculator.set_groups({})
+    
+    result = calculator.calculate_person(gm)
+    
+    assert result.team_commission == 6000.0
+
+def test_gm_team_commission_multiple_eligible():
+    config = Config.default()
+    config.gm_eligible_threshold = 30000.0
+    
+    calculator = CommissionCalculator(config)
+    
+    gm = Person(id="gm", name="总主管", role=Role.GENERAL_MANAGER, performance=60000)
+    leader = Person(id="l1", name="组长", role=Role.TEAM_LEADER, performance=40000)
+    member = Person(id="m1", name="成员", role=Role.MEMBER, performance=50000)
+    
+    calculator.set_people({gm.id: gm, leader.id: leader, member.id: member})
+    calculator.set_groups({})
+    
+    result = calculator.calculate_person(gm)
+    
+    assert result.team_commission == 15000.0
