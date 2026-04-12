@@ -304,7 +304,7 @@ def calculate_high_performance_bonus(performance: float, bonuses: List[Bonus]) -
 ### 单元测试
 
 - 核心计算逻辑: 100%覆盖
-- 53个测试全部通过
+- 60个测试全部通过
 
 ### 测试目录结构
 
