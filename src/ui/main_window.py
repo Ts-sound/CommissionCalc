@@ -230,13 +230,13 @@ class MainWindow:
         personal_frame.pack(fill=tk.X, padx=5, pady=5)
         ttk.Label(personal_frame, text="说明：范围 <=业绩< 上限，上限为空表示无上限").pack(anchor=tk.W)
         
-        self.personal_tree = ttk.Treeview(personal_frame, columns=("下限", "上限", "提成比例"), show="headings", height=4)
+        self.personal_tree = ttk.Treeview(personal_frame, columns=("下限", "上限", "提成点数"), show="headings", height=4)
         self.personal_tree.heading("下限", text="下限")
         self.personal_tree.heading("上限", text="上限")
-        self.personal_tree.heading("提成比例", text="提成比例")
+        self.personal_tree.heading("提成点数", text="提成点数")
         self.personal_tree.column("下限", width=150)
         self.personal_tree.column("上限", width=150)
-        self.personal_tree.column("提成比例", width=150)
+        self.personal_tree.column("提成点数", width=150)
         configure_treeview_center(self.personal_tree)
         self.personal_tree.pack(fill=tk.X)
         
@@ -247,13 +247,13 @@ class MainWindow:
         team_frame = ttk.LabelFrame(rules_inner_frame, text="正式组长团队提成阶梯配置", padding="5")
         team_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        self.team_tree = ttk.Treeview(team_frame, columns=("下限", "上限", "提成比例"), show="headings", height=4)
+        self.team_tree = ttk.Treeview(team_frame, columns=("下限", "上限", "提成点数"), show="headings", height=4)
         self.team_tree.heading("下限", text="下限")
         self.team_tree.heading("上限", text="上限")
-        self.team_tree.heading("提成比例", text="提成比例")
+        self.team_tree.heading("提成点数", text="提成点数")
         self.team_tree.column("下限", width=150)
         self.team_tree.column("上限", width=150)
-        self.team_tree.column("提成比例", width=150)
+        self.team_tree.column("提成点数", width=150)
         configure_treeview_center(self.team_tree)
         self.team_tree.pack(fill=tk.X)
         
@@ -280,13 +280,13 @@ class MainWindow:
         self.gm_threshold_entry.pack(side=tk.LEFT, padx=5)
         ttk.Label(gm_threshold_frame, text="（低于此业绩不计入总主管团队提成）").pack(side=tk.LEFT)
         
-        self.gm_tree = ttk.Treeview(gm_frame, columns=("下限", "上限", "提成比例"), show="headings", height=2)
+        self.gm_tree = ttk.Treeview(gm_frame, columns=("下限", "上限", "提成点数"), show="headings", height=2)
         self.gm_tree.heading("下限", text="下限")
         self.gm_tree.heading("上限", text="上限")
-        self.gm_tree.heading("提成比例", text="提成比例")
+        self.gm_tree.heading("提成点数", text="提成点数")
         self.gm_tree.column("下限", width=150)
         self.gm_tree.column("上限", width=150)
-        self.gm_tree.column("提成比例", width=150)
+        self.gm_tree.column("提成点数", width=150)
         configure_treeview_center(self.gm_tree)
         self.gm_tree.pack(fill=tk.X)
         
@@ -305,13 +305,13 @@ class MainWindow:
         self.temp_leader_threshold_entry.pack(side=tk.LEFT, padx=5)
         ttk.Label(tl_threshold_frame, text="（低于此业绩不计入临时组长团队提成）").pack(side=tk.LEFT)
         
-        self.temp_leader_tree = ttk.Treeview(temp_leader_frame, columns=("下限", "上限", "提成比例"), show="headings", height=3)
+        self.temp_leader_tree = ttk.Treeview(temp_leader_frame, columns=("下限", "上限", "提成点数"), show="headings", height=3)
         self.temp_leader_tree.heading("下限", text="下限")
         self.temp_leader_tree.heading("上限", text="上限")
-        self.temp_leader_tree.heading("提成比例", text="提成比例")
+        self.temp_leader_tree.heading("提成点数", text="提成点数")
         self.temp_leader_tree.column("下限", width=150)
         self.temp_leader_tree.column("上限", width=150)
-        self.temp_leader_tree.column("提成比例", width=150)
+        self.temp_leader_tree.column("提成点数", width=150)
         configure_treeview_center(self.temp_leader_tree)
         self.temp_leader_tree.pack(fill=tk.X)
         
@@ -330,13 +330,13 @@ class MainWindow:
         self.branch_manager_threshold_entry.pack(side=tk.LEFT, padx=5)
         ttk.Label(bm_threshold_frame, text="（低于此业绩不计入分主管团队提成）").pack(side=tk.LEFT)
         
-        self.branch_manager_tree = ttk.Treeview(branch_manager_frame, columns=("下限", "上限", "提成比例"), show="headings", height=2)
+        self.branch_manager_tree = ttk.Treeview(branch_manager_frame, columns=("下限", "上限", "提成点数"), show="headings", height=2)
         self.branch_manager_tree.heading("下限", text="下限")
         self.branch_manager_tree.heading("上限", text="上限")
-        self.branch_manager_tree.heading("提成比例", text="提成比例")
+        self.branch_manager_tree.heading("提成点数", text="提成点数")
         self.branch_manager_tree.column("下限", width=150)
         self.branch_manager_tree.column("上限", width=150)
-        self.branch_manager_tree.column("提成比例", width=150)
+        self.branch_manager_tree.column("提成点数", width=150)
         configure_treeview_center(self.branch_manager_tree)
         self.branch_manager_tree.pack(fill=tk.X)
         
@@ -473,7 +473,7 @@ class MainWindow:
                 if result:
                     self.result_tree.insert("", tk.END, values=(
                         name,
-                        f"{result.commission_rate*100:.1f}%",
+                        f"{result.commission_rate:.4f}",
                         result.personal_commission,
                         result.team_commission,
                         result.management_bonus,
@@ -542,7 +542,7 @@ class MainWindow:
                     "业绩": 0,
                     "身份": "",
                     "组别": "",
-                    "提成点数": "0%",
+                    "提成点数": "0",
                     "个人提成": 0,
                     "团队提成": 0,
                     "管理提成": 0,
@@ -682,31 +682,31 @@ class MainWindow:
             self.personal_tree.delete(item)
         for tier in self.config.personal_commission.tiers:
             max_text = str(tier.max_amount) if tier.max_amount else "(空)"
-            self.personal_tree.insert("", tk.END, values=(tier.min_amount, max_text, f"{tier.rate*100}%"))
+            self.personal_tree.insert("", tk.END, values=(tier.min_amount, max_text, tier.rate))
         
         for item in self.team_tree.get_children():
             self.team_tree.delete(item)
         for tier in self.config.team_commission.tiers:
             max_text = str(tier.max_amount) if tier.max_amount else "(空)"
-            self.team_tree.insert("", tk.END, values=(tier.min_amount, max_text, f"{tier.rate*100}%"))
+            self.team_tree.insert("", tk.END, values=(tier.min_amount, max_text, tier.rate))
         
         for item in self.gm_tree.get_children():
             self.gm_tree.delete(item)
         for tier in self.config.gm_commission.tiers:
             max_text = str(tier.max_amount) if tier.max_amount else "(空)"
-            self.gm_tree.insert("", tk.END, values=(tier.min_amount, max_text, f"{tier.rate*100}%"))
+            self.gm_tree.insert("", tk.END, values=(tier.min_amount, max_text, tier.rate))
         
         for item in self.temp_leader_tree.get_children():
             self.temp_leader_tree.delete(item)
         for tier in self.config.temp_leader_commission.tiers:
             max_text = str(tier.max_amount) if tier.max_amount else "(空)"
-            self.temp_leader_tree.insert("", tk.END, values=(tier.min_amount, max_text, f"{tier.rate*100}%"))
+            self.temp_leader_tree.insert("", tk.END, values=(tier.min_amount, max_text, tier.rate))
         
         for item in self.branch_manager_tree.get_children():
             self.branch_manager_tree.delete(item)
         for tier in self.config.branch_manager_commission.tiers:
             max_text = str(tier.max_amount) if tier.max_amount else "(空)"
-            self.branch_manager_tree.insert("", tk.END, values=(tier.min_amount, max_text, f"{tier.rate*100}%"))
+            self.branch_manager_tree.insert("", tk.END, values=(tier.min_amount, max_text, tier.rate))
         
         for item in self.bonus_tree.get_children():
             self.bonus_tree.delete(item)

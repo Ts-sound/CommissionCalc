@@ -189,7 +189,7 @@ class TierDialog:
         self.max_entry.grid(row=1, column=1, padx=5, pady=5, sticky=tk.EW)
         ttk.Label(self.dialog, text="(空表示无上限)").grid(row=2, column=1, padx=5, sticky=tk.W)
         
-        ttk.Label(self.dialog, text="提成比例（%）：").grid(row=3, column=0, padx=5, pady=5, sticky=tk.W)
+        ttk.Label(self.dialog, text="提成点数：").grid(row=3, column=0, padx=5, pady=5, sticky=tk.W)
         self.rate_entry = ttk.Entry(self.dialog)
         self.rate_entry.grid(row=3, column=1, padx=5, pady=5, sticky=tk.EW)
         
@@ -199,7 +199,7 @@ class TierDialog:
             self.min_entry.insert(0, str(tier.min_amount))
             if tier.max_amount:
                 self.max_entry.insert(0, str(tier.max_amount))
-            self.rate_entry.insert(0, str(tier.rate * 100))
+            self.rate_entry.insert(0, str(tier.rate))
         
         ttk.Button(self.dialog, text="确定", command=self.ok).grid(row=5, column=0, padx=5, pady=10)
         ttk.Button(self.dialog, text="取消", command=self.cancel).grid(row=5, column=1, padx=5, pady=10)
@@ -229,19 +229,19 @@ class TierDialog:
                 return
         
         try:
-            rate_percent = float(self.rate_entry.get())
+            rate = float(self.rate_entry.get())
         except ValueError:
-            messagebox.showwarning("提示", "提成比例必须是数字")
+            messagebox.showwarning("提示", "提成点数必须是数字")
             return
         
-        if rate_percent < 0 or rate_percent > 100:
-            messagebox.showwarning("提示", "提成比例必须在0-100之间")
+        if rate < 0 or rate > 1:
+            messagebox.showwarning("提示", "提成点数必须在0-1之间")
             return
         
         self.result = {
             "min_amount": min_amount,
             "max_amount": max_amount,
-            "rate": rate_percent / 100
+            "rate": rate
         }
         self.dialog.destroy()
     

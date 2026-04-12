@@ -222,9 +222,8 @@ def calculate_personal_commission(performance: float, rule: CommissionRule) -> t
         if tier.min_amount <= performance:
             if tier.max_amount is None or performance < tier.max_amount:
                 commission = performance * tier.rate
-                rate_points = round(tier.rate * 100, 4)
-                logger.debug(f"    个人提成计算: 业绩={performance}, 匹配阶梯[{tier.min_amount}-{tier.max_amount or '∞'}], 比例={tier.rate}, 结果={commission}")
-                return commission, rate_points
+                logger.debug(f"    个人提成计算: 业绩={performance}, 匹配阶梯[{tier.min_amount}-{tier.max_amount or '∞'}], 提成点数={tier.rate}, 结果={commission}")
+                return commission, tier.rate
     
     logger.debug(f"    个人提成计算: 业绩={performance}, 结果=0 (无匹配阶梯)")
     return 0.0, 0.0
@@ -238,7 +237,7 @@ def calculate_team_commission(team_performance: float, rule: CommissionRule) -> 
         if tier.min_amount <= team_performance:
             if tier.max_amount is None or team_performance < tier.max_amount:
                 commission = team_performance * tier.rate
-                logger.debug(f"    团队提成计算: 团队业绩={team_performance}, 匹配阶梯[{tier.min_amount}-{tier.max_amount or '∞'}], 比例={tier.rate}, 结果={commission}")
+                logger.debug(f"    团队提成计算: 团队业绩={team_performance}, 匹配阶梯[{tier.min_amount}-{tier.max_amount or '∞'}], 提成点数={tier.rate}, 结果={commission}")
                 return commission
     
     logger.debug(f"    团队提成计算: 团队业绩={team_performance}, 结果=0 (无匹配阶梯)")

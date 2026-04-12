@@ -174,4 +174,4 @@ def test_commission_rate_calculation():
     
     result = calculator.calculate_person(person)
     
-    assert result.commission_rate == 20.0000
+    assert result.commission_rate == 0.2

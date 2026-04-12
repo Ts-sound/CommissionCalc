@@ -1531,7 +1531,7 @@ git commit -m "feat: integrate person config dialog with main window"
 
 Run: `pytest tests/ -v --cov=src`
 
-Expected: All tests PASS, coverage > 80%
+Expected: All tests PASS, coverage > 80
 
 **Step 2: Fix any failures**
 
@@ -1608,13 +1608,13 @@ python main.py
 ## 提成计算规则
 
 ### 个人业绩提成
-- 0-3000元: 0%
-- 3000元以上: 20%
+- 0-3000元: 0
+- 3000元以上: 20
 
 ### 团队业绩提成（组长/总主管）
-- 0-3000元: 0%
-- 3000-10000元: 10%
-- 10000元以上: 20%
+- 0-3000元: 0
+- 3000-10000元: 10
+- 10000元以上: 20
 
 ### 组长管理提成
 - 每个组员: 100元
