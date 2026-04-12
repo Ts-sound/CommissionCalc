@@ -28,7 +28,7 @@ class PersonDialog:
         self.name_entry.grid(row=0, column=1, padx=5, pady=5, sticky=tk.EW)
         
         ttk.Label(self.dialog, text="身份：").grid(row=1, column=0, padx=5, pady=5, sticky=tk.W)
-        self.role_combo = ttk.Combobox(self.dialog, values=["总主管", "分主管", "临时组长", "组长", "成员"], state="readonly")
+        self.role_combo = ttk.Combobox(self.dialog, values=["总主管", "分主管", "临时组长", "正式组长", "成员"], state="readonly")
         self.role_combo.grid(row=1, column=1, padx=5, pady=5, sticky=tk.EW)
         self.role_combo.bind("<<ComboboxSelected>>", self._on_role_change)
         

@@ -244,7 +244,7 @@ class MainWindow:
         ttk.Button(personal_frame, text="编辑阶梯", command=lambda: self.edit_tier("personal")).pack(side=tk.LEFT, padx=5)
         ttk.Button(personal_frame, text="删除阶梯", command=lambda: self.delete_tier("personal")).pack(side=tk.LEFT, padx=5)
         
-        team_frame = ttk.LabelFrame(rules_inner_frame, text="团队提成阶梯配置", padding="5")
+        team_frame = ttk.LabelFrame(rules_inner_frame, text="正式组长团队提成阶梯配置", padding="5")
         team_frame.pack(fill=tk.X, padx=5, pady=5)
         
         self.team_tree = ttk.Treeview(team_frame, columns=("下限", "上限", "提成比例"), show="headings", height=4)
