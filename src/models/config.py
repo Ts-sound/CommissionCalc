@@ -53,7 +53,7 @@ class Config:
             ),
             gm_eligible_threshold=50000.0,
             temp_leader_commission=CommissionRule(
-                rule_type=RuleType.TEAM,
+                rule_type=RuleType.TEMP_LEADER,
                 tiers=[
                     Tier(min_amount=0, max_amount=10000, rate=0.0),
                     Tier(min_amount=10000, max_amount=50000, rate=0.1),
@@ -61,7 +61,7 @@ class Config:
                 ]
             ),
             branch_manager_commission=CommissionRule(
-                rule_type=RuleType.GM,
+                rule_type=RuleType.BRANCH_MANAGER,
                 tiers=[
                     Tier(min_amount=0, max_amount=50000, rate=0.0),
                     Tier(min_amount=50000, max_amount=None, rate=0.1)
