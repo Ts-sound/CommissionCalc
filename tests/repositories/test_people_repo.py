@@ -48,6 +48,51 @@ def test_save_and_load_groups(people_repo):
     assert "m1" in loaded_groups["g1"].members
     assert "m2" in loaded_groups["g1"].members
 
+def test_save_and_load_managed_groups(people_repo):
+    branch_manager = Person(
+        id="bm1",
+        name="分主管张",
+        role=Role.BRANCH_MANAGER,
+        managed_groups=["g1", "g2"]
+    )
+    people = {"bm1": branch_manager}
+    groups = {"g1": Group(id="g1", name="A组", leader_id=None), "g2": Group(id="g2", name="B组", leader_id=None)}
+    
+    people_repo.save(people, groups)
+    
+    loaded_people, _ = people_repo.load()
+    assert loaded_people["bm1"].managed_groups == ["g1", "g2"]
+
+def test_load_missing_managed_groups_defaults_to_empty(people_repo):
+    people_json = '''
+    {
+        "people": [{"id": "p1", "name": "张三", "role": "成员"}],
+        "groups": []
+    }
+    '''
+    import json
+    with open(people_repo.people_file, 'w', encoding='utf-8') as f:
+        f.write(people_json)
+    
+    loaded_people, _ = people_repo.load()
+    assert loaded_people["p1"].managed_groups == []
+
+def test_load_old_config_without_managed_groups(people_repo):
+    people_json = '''
+    {
+        "people": [
+            {"id": "bm1", "name": "分主管", "role": "分主管", "group_id": null}
+        ],
+        "groups": []
+    }
+    '''
+    import json
+    with open(people_repo.people_file, 'w', encoding='utf-8') as f:
+        f.write(people_json)
+    
+    loaded_people, _ = people_repo.load()
+    assert loaded_people["bm1"].managed_groups == []
+
 def test_save_and_load_full_structure(people_repo):
     leader = Person(id="l1", name="组长", role=Role.TEAM_LEADER, group_id="g1")
     member1 = Person(id="m1", name="成员1", role=Role.MEMBER, group_id="g1")

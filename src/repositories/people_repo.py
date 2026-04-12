@@ -35,7 +35,8 @@ class PeopleRepository:
                 id=person_data["id"],
                 name=person_data["name"],
                 role=Role(person_data["role"]),
-                group_id=person_data.get("group_id")
+                group_id=person_data.get("group_id"),
+                managed_groups=person_data.get("managed_groups", [])
             )
             people[person.id] = person
         
@@ -48,7 +49,8 @@ class PeopleRepository:
                     "id": p.id,
                     "name": p.name,
                     "role": p.role.value,
-                    "group_id": p.group_id
+                    "group_id": p.group_id,
+                    "managed_groups": p.managed_groups
                 }
                 for p in people.values()
             ],
