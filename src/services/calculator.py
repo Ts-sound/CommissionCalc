@@ -17,6 +17,8 @@ class CommissionResult:
     team_commission: float = 0.0
     management_bonus: float = 0.0
     high_performance_bonus: float = 0.0
+    sales_champion_bonus: float = 0.0
+    commission_rate: float = 0.0
     total: float = 0.0
 
 class CommissionCalculator:
