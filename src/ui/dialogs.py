@@ -15,7 +15,7 @@ class PersonDialog:
         
         self.dialog = tk.Toplevel(parent)
         self.dialog.title("添加/编辑人员")
-        self.dialog.geometry("300x200")
+        self.dialog.geometry("400x300")
         self.dialog.transient(parent)
         self.dialog.grab_set()
         
@@ -28,8 +28,9 @@ class PersonDialog:
         self.name_entry.grid(row=0, column=1, padx=5, pady=5, sticky=tk.EW)
         
         ttk.Label(self.dialog, text="身份：").grid(row=1, column=0, padx=5, pady=5, sticky=tk.W)
-        self.role_combo = ttk.Combobox(self.dialog, values=["总主管", "组长", "成员"], state="readonly")
+        self.role_combo = ttk.Combobox(self.dialog, values=["总主管", "分主管", "临时组长", "组长", "成员"], state="readonly")
         self.role_combo.grid(row=1, column=1, padx=5, pady=5, sticky=tk.EW)
+        self.role_combo.bind("<<ComboboxSelected>>", self._on_role_change)
         
         ttk.Label(self.dialog, text="组别：").grid(row=2, column=0, padx=5, pady=5, sticky=tk.W)
         group_names = [g.name for g in groups.values()]
@@ -37,19 +38,44 @@ class PersonDialog:
         self.group_combo = ttk.Combobox(self.dialog, values=group_names)
         self.group_combo.grid(row=2, column=1, padx=5, pady=5, sticky=tk.EW)
         
+        ttk.Label(self.dialog, text="管理组别：").grid(row=3, column=0, padx=5, pady=5, sticky=tk.W)
+        self.managed_groups_frame = ttk.Frame(self.dialog)
+        self.managed_groups_frame.grid(row=3, column=1, padx=5, pady=5, sticky=tk.EW)
+        
+        self.managed_group_vars = {}
+        for group in self.groups.values():
+            var = tk.BooleanVar()
+            cb = ttk.Checkbutton(self.managed_groups_frame, text=group.name, variable=var)
+            cb.pack(side=tk.LEFT, padx=2)
+            self.managed_group_vars[group.id] = var
+        
         if person:
             self.name_entry.insert(0, person.name)
             self.role_combo.set(person.role.value)
             group = groups.get(person.group_id)
             group_name = group.name if group else "(无)"
             self.group_combo.set(group_name)
+            for gid in person.managed_groups:
+                if gid in self.managed_group_vars:
+                    self.managed_group_vars[gid].set(True)
         
-        ttk.Button(self.dialog, text="确定", command=self.ok).grid(row=3, column=0, padx=5, pady=10)
-        ttk.Button(self.dialog, text="取消", command=self.cancel).grid(row=3, column=1, padx=5, pady=10)
+        self._on_role_change()
+        
+        ttk.Button(self.dialog, text="确定", command=self.ok).grid(row=4, column=0, padx=5, pady=10)
+        ttk.Button(self.dialog, text="取消", command=self.cancel).grid(row=4, column=1, padx=5, pady=10)
         
         self.dialog.columnconfigure(1, weight=1)
         
         parent.wait_window(self.dialog)
+    
+    def _on_role_change(self, event=None):
+        role_text = self.role_combo.get()
+        if role_text == "分主管":
+            for cb in self.managed_groups_frame.winfo_children():
+                cb.configure(state=tk.NORMAL)
+        else:
+            for cb in self.managed_groups_frame.winfo_children():
+                cb.configure(state=tk.DISABLED)
     
     def ok(self):
         name = self.name_entry.get().strip()
@@ -70,6 +96,21 @@ class PersonDialog:
             existing_gm = next((p for p in self.people.values() if p.role == Role.GENERAL_MANAGER), None)
             if existing_gm and (not self.person or existing_gm.id != self.person.id):
                 messagebox.showwarning("提示", "已存在总主管，不能再添加")
+                return
+        
+        if role == Role.TEMP_LEADER:
+            existing_tl = next((p for p in self.people.values() if p.role == Role.TEMP_LEADER), None)
+            if existing_tl and (not self.person or existing_tl.id != self.person.id):
+                messagebox.showwarning("提示", "已存在临时组长，不能再添加")
+                return
+        
+        managed_groups = []
+        if role == Role.BRANCH_MANAGER:
+            for gid, var in self.managed_group_vars.items():
+                if var.get():
+                    managed_groups.append(gid)
+            if len(managed_groups) == 0:
+                messagebox.showwarning("提示", "分主管需管理至少1个组")
                 return
         
         group_id = None
@@ -123,7 +164,7 @@ class PersonDialog:
                 old_group.remove_member(person_id)
                 logger.debug(f"  从组'{old_group.name}'移除成员'{name}'")
         
-        self.result = Person(id=person_id, name=name, role=role, group_id=group_id)
+        self.result = Person(id=person_id, name=name, role=role, group_id=group_id, managed_groups=managed_groups)
         self.dialog.destroy()
     
     def cancel(self):

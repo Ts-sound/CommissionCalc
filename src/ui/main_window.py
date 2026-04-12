@@ -149,19 +149,23 @@ class MainWindow:
         result_frame = ttk.LabelFrame(self.commission_frame, text="提成结果", padding="5")
         result_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        self.result_tree = ttk.Treeview(result_frame, columns=("姓名", "个人提成", "团队提成", "管理提成", "奖金", "总计"), show="headings", height=8)
+        self.result_tree = ttk.Treeview(result_frame, columns=("姓名", "提成点数", "个人提成", "团队提成", "管理提成", "奖金", "销冠奖金", "总计"), show="headings", height=8)
         self.result_tree.heading("姓名", text="姓名")
+        self.result_tree.heading("提成点数", text="提成点数")
         self.result_tree.heading("个人提成", text="个人提成")
         self.result_tree.heading("团队提成", text="团队提成")
         self.result_tree.heading("管理提成", text="管理提成")
         self.result_tree.heading("奖金", text="奖金")
+        self.result_tree.heading("销冠奖金", text="销冠奖金")
         self.result_tree.heading("总计", text="总计")
-        self.result_tree.column("姓名", width=100)
-        self.result_tree.column("个人提成", width=100)
-        self.result_tree.column("团队提成", width=100)
-        self.result_tree.column("管理提成", width=100)
-        self.result_tree.column("奖金", width=100)
-        self.result_tree.column("总计", width=100)
+        self.result_tree.column("姓名", width=80)
+        self.result_tree.column("提成点数", width=80)
+        self.result_tree.column("个人提成", width=80)
+        self.result_tree.column("团队提成", width=80)
+        self.result_tree.column("管理提成", width=80)
+        self.result_tree.column("奖金", width=80)
+        self.result_tree.column("销冠奖金", width=80)
+        self.result_tree.column("总计", width=80)
         configure_treeview_center(self.result_tree)
         self.result_tree.pack(fill=tk.BOTH, expand=True)
     
@@ -169,13 +173,15 @@ class MainWindow:
         tree_frame = ttk.Frame(self.people_frame)
         tree_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        self.people_tree = ttk.Treeview(tree_frame, columns=("姓名", "身份", "组别"), show="headings", height=15)
+        self.people_tree = ttk.Treeview(tree_frame, columns=("姓名", "身份", "组别", "管理组别"), show="headings", height=15)
         self.people_tree.heading("姓名", text="姓名")
         self.people_tree.heading("身份", text="身份")
         self.people_tree.heading("组别", text="组别")
-        self.people_tree.column("姓名", width=200)
-        self.people_tree.column("身份", width=200)
-        self.people_tree.column("组别", width=200)
+        self.people_tree.heading("管理组别", text="管理组别")
+        self.people_tree.column("姓名", width=150)
+        self.people_tree.column("身份", width=100)
+        self.people_tree.column("组别", width=100)
+        self.people_tree.column("管理组别", width=150)
         configure_treeview_center(self.people_tree)
         self.people_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
@@ -195,6 +201,8 @@ class MainWindow:
         tip_frame = ttk.LabelFrame(self.people_frame, text="提示", padding="5")
         tip_frame.pack(fill=tk.X, padx=5, pady=5)
         ttk.Label(tip_frame, text="- 总主管只能有一位").pack(anchor=tk.W)
+        ttk.Label(tip_frame, text="- 临时组长只能有一位").pack(anchor=tk.W)
+        ttk.Label(tip_frame, text="- 分主管需管理至少1个组").pack(anchor=tk.W)
         ttk.Label(tip_frame, text="- 组长必须分配到组").pack(anchor=tk.W)
         ttk.Label(tip_frame, text="- 成员必须分配到组").pack(anchor=tk.W)
         ttk.Label(tip_frame, text="- 点击'保存配置'按钮才能生效").pack(anchor=tk.W)
@@ -286,6 +294,56 @@ class MainWindow:
         ttk.Button(gm_frame, text="编辑阶梯", command=lambda: self.edit_tier("gm")).pack(side=tk.LEFT, padx=5)
         ttk.Button(gm_frame, text="删除阶梯", command=lambda: self.delete_tier("gm")).pack(side=tk.LEFT, padx=5)
         
+        temp_leader_frame = ttk.LabelFrame(rules_inner_frame, text="临时组长提成配置", padding="5")
+        temp_leader_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        tl_threshold_frame = ttk.Frame(temp_leader_frame)
+        tl_threshold_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(tl_threshold_frame, text="临时组长达标线（元）：").pack(side=tk.LEFT)
+        self.temp_leader_threshold_entry = ttk.Entry(tl_threshold_frame, width=10)
+        self.temp_leader_threshold_entry.insert(0, str(self.config.temp_leader_eligible_threshold))
+        self.temp_leader_threshold_entry.pack(side=tk.LEFT, padx=5)
+        ttk.Label(tl_threshold_frame, text="（低于此业绩不计入临时组长团队提成）").pack(side=tk.LEFT)
+        
+        self.temp_leader_tree = ttk.Treeview(temp_leader_frame, columns=("下限", "上限", "提成比例"), show="headings", height=3)
+        self.temp_leader_tree.heading("下限", text="下限")
+        self.temp_leader_tree.heading("上限", text="上限")
+        self.temp_leader_tree.heading("提成比例", text="提成比例")
+        self.temp_leader_tree.column("下限", width=150)
+        self.temp_leader_tree.column("上限", width=150)
+        self.temp_leader_tree.column("提成比例", width=150)
+        configure_treeview_center(self.temp_leader_tree)
+        self.temp_leader_tree.pack(fill=tk.X)
+        
+        ttk.Button(temp_leader_frame, text="添加阶梯", command=lambda: self.add_tier("temp_leader")).pack(side=tk.LEFT, padx=5)
+        ttk.Button(temp_leader_frame, text="编辑阶梯", command=lambda: self.edit_tier("temp_leader")).pack(side=tk.LEFT, padx=5)
+        ttk.Button(temp_leader_frame, text="删除阶梯", command=lambda: self.delete_tier("temp_leader")).pack(side=tk.LEFT, padx=5)
+        
+        branch_manager_frame = ttk.LabelFrame(rules_inner_frame, text="分主管提成配置", padding="5")
+        branch_manager_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        bm_threshold_frame = ttk.Frame(branch_manager_frame)
+        bm_threshold_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(bm_threshold_frame, text="分主管达标线（元）：").pack(side=tk.LEFT)
+        self.branch_manager_threshold_entry = ttk.Entry(bm_threshold_frame, width=10)
+        self.branch_manager_threshold_entry.insert(0, str(self.config.branch_manager_eligible_threshold))
+        self.branch_manager_threshold_entry.pack(side=tk.LEFT, padx=5)
+        ttk.Label(bm_threshold_frame, text="（低于此业绩不计入分主管团队提成）").pack(side=tk.LEFT)
+        
+        self.branch_manager_tree = ttk.Treeview(branch_manager_frame, columns=("下限", "上限", "提成比例"), show="headings", height=2)
+        self.branch_manager_tree.heading("下限", text="下限")
+        self.branch_manager_tree.heading("上限", text="上限")
+        self.branch_manager_tree.heading("提成比例", text="提成比例")
+        self.branch_manager_tree.column("下限", width=150)
+        self.branch_manager_tree.column("上限", width=150)
+        self.branch_manager_tree.column("提成比例", width=150)
+        configure_treeview_center(self.branch_manager_tree)
+        self.branch_manager_tree.pack(fill=tk.X)
+        
+        ttk.Button(branch_manager_frame, text="添加阶梯", command=lambda: self.add_tier("branch_manager")).pack(side=tk.LEFT, padx=5)
+        ttk.Button(branch_manager_frame, text="编辑阶梯", command=lambda: self.edit_tier("branch_manager")).pack(side=tk.LEFT, padx=5)
+        ttk.Button(branch_manager_frame, text="删除阶梯", command=lambda: self.delete_tier("branch_manager")).pack(side=tk.LEFT, padx=5)
+        
         management_frame = ttk.LabelFrame(rules_inner_frame, text="管理提成", padding="5")
         management_frame.pack(fill=tk.X, padx=5, pady=5)
         ttk.Label(management_frame, text="每人管理提成金额（元）：").pack(side=tk.LEFT)
@@ -307,6 +365,24 @@ class MainWindow:
         ttk.Button(bonus_frame, text="添加奖金阶梯", command=self.add_bonus).pack(side=tk.LEFT, padx=5)
         ttk.Button(bonus_frame, text="编辑奖金阶梯", command=self.edit_bonus).pack(side=tk.LEFT, padx=5)
         ttk.Button(bonus_frame, text="删除奖金阶梯", command=self.delete_bonus).pack(side=tk.LEFT, padx=5)
+        
+        sales_champion_frame = ttk.LabelFrame(rules_inner_frame, text="销冠奖金配置", padding="5")
+        sales_champion_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        sc_threshold_frame = ttk.Frame(sales_champion_frame)
+        sc_threshold_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(sc_threshold_frame, text="销冠阈值（元）：").pack(side=tk.LEFT)
+        self.sales_champion_threshold_entry = ttk.Entry(sc_threshold_frame, width=10)
+        self.sales_champion_threshold_entry.insert(0, str(self.config.sales_champion_threshold))
+        self.sales_champion_threshold_entry.pack(side=tk.LEFT, padx=5)
+        ttk.Label(sc_threshold_frame, text="（业绩最高且>=阈值者获得销冠奖金）").pack(side=tk.LEFT)
+        
+        sc_bonus_frame = ttk.Frame(sales_champion_frame)
+        sc_bonus_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(sc_bonus_frame, text="销冠奖金（元）：").pack(side=tk.LEFT)
+        self.sales_champion_bonus_entry = ttk.Entry(sc_bonus_frame, width=10)
+        self.sales_champion_bonus_entry.insert(0, str(self.config.sales_champion_bonus))
+        self.sales_champion_bonus_entry.pack(side=tk.LEFT, padx=5)
         
         button_frame = ttk.Frame(rules_inner_frame)
         button_frame.pack(fill=tk.X, padx=5, pady=5)
@@ -385,21 +461,26 @@ class MainWindow:
         self.calculator.set_people(self.people)
         self.calculator.set_groups(self.groups)
         
+        results = self.calculator.calculate_all()
+        
         for item in self.result_tree.get_children():
             self.result_tree.delete(item)
         
         for name, performance in self.performance_data.items():
             person = next((p for p in self.people.values() if p.name == name), None)
             if person:
-                result = self.calculator.calculate_person(person)
-                self.result_tree.insert("", tk.END, values=(
-                    name,
-                    result.personal_commission,
-                    result.team_commission,
-                    result.management_bonus,
-                    result.high_performance_bonus,
-                    result.total
-                ))
+                result = results.get(person.id)
+                if result:
+                    self.result_tree.insert("", tk.END, values=(
+                        name,
+                        f"{result.commission_rate*100:.1f}%",
+                        result.personal_commission,
+                        result.team_commission,
+                        result.management_bonus,
+                        result.high_performance_bonus,
+                        result.sales_champion_bonus,
+                        result.total
+                    ))
         
         self.status_var.set(f"已计算{len(self.performance_data)}人提成")
         self.logger.info(f"完成{len(self.performance_data)}人提成计算")
@@ -447,11 +528,13 @@ class MainWindow:
                         "业绩": person.performance,
                         "身份": person.role.value,
                         "组别": group_name,
-                        "个人提成": values[1],
-                        "团队提成": values[2],
-                        "管理提成": values[3],
-                        "高业绩奖金": values[4],
-                        "总提成": values[5]
+                        "提成点数": values[1],
+                        "个人提成": values[2],
+                        "团队提成": values[3],
+                        "管理提成": values[4],
+                        "高业绩奖金": values[5],
+                        "销冠奖金": values[6],
+                        "总提成": values[7]
                     })
             else:
                 results.append({
@@ -459,10 +542,12 @@ class MainWindow:
                     "业绩": 0,
                     "身份": "",
                     "组别": "",
+                    "提成点数": "0%",
                     "个人提成": 0,
                     "团队提成": 0,
                     "管理提成": 0,
                     "高业绩奖金": 0,
+                    "销冠奖金": 0,
                     "总提成": 0
                 })
         return results
@@ -480,11 +565,13 @@ class MainWindow:
                     "业绩": person.performance,
                     "身份": person.role.value,
                     "组别": group_name,
-                    "个人提成": values[1],
-                    "团队提成": values[2],
-                    "管理提成": values[3],
-                    "高业绩奖金": values[4],
-                    "总提成": values[5]
+                    "提成点数": values[1],
+                    "个人提成": values[2],
+                    "团队提成": values[3],
+                    "管理提成": values[4],
+                    "高业绩奖金": values[5],
+                    "销冠奖金": values[6],
+                    "总提成": values[7]
                 })
         return results
     
@@ -586,7 +673,9 @@ class MainWindow:
         for person in self.people.values():
             group = self.groups.get(person.group_id)
             group_name = group.name if group else ""
-            self.people_tree.insert("", tk.END, values=(person.name, person.role.value, group_name))
+            managed_names = [self.groups.get(gid).name for gid in person.managed_groups if self.groups.get(gid)]
+            managed_str = ", ".join(managed_names) if managed_names else ""
+            self.people_tree.insert("", tk.END, values=(person.name, person.role.value, group_name, managed_str))
     
     def _refresh_rules_trees(self):
         for item in self.personal_tree.get_children():
@@ -607,6 +696,18 @@ class MainWindow:
             max_text = str(tier.max_amount) if tier.max_amount else "(空)"
             self.gm_tree.insert("", tk.END, values=(tier.min_amount, max_text, f"{tier.rate*100}%"))
         
+        for item in self.temp_leader_tree.get_children():
+            self.temp_leader_tree.delete(item)
+        for tier in self.config.temp_leader_commission.tiers:
+            max_text = str(tier.max_amount) if tier.max_amount else "(空)"
+            self.temp_leader_tree.insert("", tk.END, values=(tier.min_amount, max_text, f"{tier.rate*100}%"))
+        
+        for item in self.branch_manager_tree.get_children():
+            self.branch_manager_tree.delete(item)
+        for tier in self.config.branch_manager_commission.tiers:
+            max_text = str(tier.max_amount) if tier.max_amount else "(空)"
+            self.branch_manager_tree.insert("", tk.END, values=(tier.min_amount, max_text, f"{tier.rate*100}%"))
+        
         for item in self.bonus_tree.get_children():
             self.bonus_tree.delete(item)
         for bonus in self.config.high_performance_bonuses:
@@ -624,6 +725,10 @@ class MainWindow:
                 self.config.team_commission.tiers.append(tier)
             elif tier_type == "gm":
                 self.config.gm_commission.tiers.append(tier)
+            elif tier_type == "temp_leader":
+                self.config.temp_leader_commission.tiers.append(tier)
+            elif tier_type == "branch_manager":
+                self.config.branch_manager_commission.tiers.append(tier)
             self._refresh_rules_trees()
     
     def edit_tier(self, tier_type):
@@ -634,8 +739,14 @@ class MainWindow:
             tree = self.personal_tree
         elif tier_type == "team":
             tree = self.team_tree
-        else:
+        elif tier_type == "gm":
             tree = self.gm_tree
+        elif tier_type == "temp_leader":
+            tree = self.temp_leader_tree
+        elif tier_type == "branch_manager":
+            tree = self.branch_manager_tree
+        else:
+            return
         selected = tree.selection()
         if not selected:
             messagebox.showwarning("提示", "请先选择阶梯")
@@ -646,8 +757,14 @@ class MainWindow:
             tiers = self.config.personal_commission.tiers
         elif tier_type == "team":
             tiers = self.config.team_commission.tiers
-        else:
+        elif tier_type == "gm":
             tiers = self.config.gm_commission.tiers
+        elif tier_type == "temp_leader":
+            tiers = self.config.temp_leader_commission.tiers
+        elif tier_type == "branch_manager":
+            tiers = self.config.branch_manager_commission.tiers
+        else:
+            return
         tier = tiers[index]
         
         dialog = TierDialog(self.root, tier)
@@ -664,8 +781,14 @@ class MainWindow:
             tree = self.personal_tree
         elif tier_type == "team":
             tree = self.team_tree
-        else:
+        elif tier_type == "gm":
             tree = self.gm_tree
+        elif tier_type == "temp_leader":
+            tree = self.temp_leader_tree
+        elif tier_type == "branch_manager":
+            tree = self.branch_manager_tree
+        else:
+            return
         selected = tree.selection()
         if not selected:
             messagebox.showwarning("提示", "请先选择阶梯")
@@ -677,8 +800,14 @@ class MainWindow:
                 tiers = self.config.personal_commission.tiers
             elif tier_type == "team":
                 tiers = self.config.team_commission.tiers
-            else:
+            elif tier_type == "gm":
                 tiers = self.config.gm_commission.tiers
+            elif tier_type == "temp_leader":
+                tiers = self.config.temp_leader_commission.tiers
+            elif tier_type == "branch_manager":
+                tiers = self.config.branch_manager_commission.tiers
+            else:
+                return
             tiers.pop(index)
             self._refresh_rules_trees()
     
@@ -740,6 +869,26 @@ class MainWindow:
         except ValueError:
             pass
         
+        try:
+            self.config.temp_leader_eligible_threshold = float(self.temp_leader_threshold_entry.get())
+        except ValueError:
+            pass
+        
+        try:
+            self.config.branch_manager_eligible_threshold = float(self.branch_manager_threshold_entry.get())
+        except ValueError:
+            pass
+        
+        try:
+            self.config.sales_champion_threshold = float(self.sales_champion_threshold_entry.get())
+        except ValueError:
+            pass
+        
+        try:
+            self.config.sales_champion_bonus = float(self.sales_champion_bonus_entry.get())
+        except ValueError:
+            pass
+        
         self.config_repo.save(self.config)
         self.calculator.config = self.config
         messagebox.showinfo("保存成功", "提成规则配置已保存")
@@ -755,6 +904,14 @@ class MainWindow:
             self.threshold_entry.insert(0, str(self.config.eligible_performance_threshold))
             self.gm_threshold_entry.delete(0, tk.END)
             self.gm_threshold_entry.insert(0, str(self.config.gm_eligible_threshold))
+            self.temp_leader_threshold_entry.delete(0, tk.END)
+            self.temp_leader_threshold_entry.insert(0, str(self.config.temp_leader_eligible_threshold))
+            self.branch_manager_threshold_entry.delete(0, tk.END)
+            self.branch_manager_threshold_entry.insert(0, str(self.config.branch_manager_eligible_threshold))
+            self.sales_champion_threshold_entry.delete(0, tk.END)
+            self.sales_champion_threshold_entry.insert(0, str(self.config.sales_champion_threshold))
+            self.sales_champion_bonus_entry.delete(0, tk.END)
+            self.sales_champion_bonus_entry.insert(0, str(self.config.sales_champion_bonus))
             self._refresh_rules_trees()
     
     def show_help(self):
