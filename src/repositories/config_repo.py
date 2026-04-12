@@ -26,12 +26,20 @@ class ConfigRepository:
                     for t in config.team_commission.tiers
                 ]
             },
+            "gm_commission": {
+                "rule_type": config.gm_commission.rule_type.value,
+                "tiers": [
+                    {"min_amount": t.min_amount, "max_amount": t.max_amount, "rate": t.rate}
+                    for t in config.gm_commission.tiers
+                ]
+            },
             "management_bonus_per_person": config.management_bonus_per_person,
             "high_performance_bonuses": [
                 {"threshold": b.threshold, "amount": b.amount}
                 for b in config.high_performance_bonuses
             ],
-            "eligible_performance_threshold": config.eligible_performance_threshold
+            "eligible_performance_threshold": config.eligible_performance_threshold,
+            "gm_eligible_threshold": config.gm_eligible_threshold
         }
         
         with open(config_file, 'w', encoding='utf-8') as f:
@@ -59,9 +67,19 @@ class ConfigRepository:
                     Tier(**t) for t in data["team_commission"]["tiers"]
                 ]
             ),
+            gm_commission=CommissionRule(
+                rule_type=RuleType(data.get("gm_commission", {}).get("rule_type", "总主管团队提成")),
+                tiers=[
+                    Tier(**t) for t in data.get("gm_commission", {}).get("tiers", [
+                        {"min_amount": 0, "max_amount": 50000, "rate": 0.0},
+                        {"min_amount": 50000, "max_amount": None, "rate": 0.1}
+                    ])
+                ]
+            ),
             management_bonus_per_person=data["management_bonus_per_person"],
             high_performance_bonuses=[
                 Bonus(**b) for b in data["high_performance_bonuses"]
             ],
-            eligible_performance_threshold=data.get("eligible_performance_threshold", 3000.0)
+            eligible_performance_threshold=data.get("eligible_performance_threshold", 3000.0),
+            gm_eligible_threshold=data.get("gm_eligible_threshold", 50000.0)
         )

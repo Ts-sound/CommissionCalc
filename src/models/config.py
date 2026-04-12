@@ -7,9 +7,11 @@ from src.models.commission import CommissionRule, Tier, RuleType, Bonus
 class Config:
     personal_commission: CommissionRule
     team_commission: CommissionRule
+    gm_commission: CommissionRule
     management_bonus_per_person: float
     high_performance_bonuses: List[Bonus]
     eligible_performance_threshold: float
+    gm_eligible_threshold: float
     
     @classmethod
     def default(cls) -> Config:
@@ -35,5 +37,13 @@ class Config:
                 Bonus(threshold=30000, amount=1000),
                 Bonus(threshold=50000, amount=2000)
             ],
-            eligible_performance_threshold=3000.0
+            eligible_performance_threshold=3000.0,
+            gm_commission=CommissionRule(
+                rule_type=RuleType.GM,
+                tiers=[
+                    Tier(min_amount=0, max_amount=50000, rate=0.0),
+                    Tier(min_amount=50000, max_amount=None, rate=0.1)
+                ]
+            ),
+            gm_eligible_threshold=50000.0
         )

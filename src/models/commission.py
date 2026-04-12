@@ -5,6 +5,7 @@ from enum import Enum
 class RuleType(Enum):
     PERSONAL = "个人业绩提成"
     TEAM = "团队业绩提成"
+    GM = "总主管团队提成"
     HIGH_BONUS = "高业绩奖金"
 
 @dataclass
