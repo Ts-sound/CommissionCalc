@@ -7,4 +7,12 @@ def test_role_values():
     assert Role.MEMBER.value == "成员"
 
 def test_role_count():
-    assert len(Role) == 3
+    assert len(Role) == 5
+
+def test_branch_manager_role():
+    assert hasattr(Role, 'BRANCH_MANAGER')
+    assert Role.BRANCH_MANAGER.value == "分主管"
+
+def test_temp_leader_role():
+    assert hasattr(Role, 'TEMP_LEADER')
+    assert Role.TEMP_LEADER.value == "临时组长"
