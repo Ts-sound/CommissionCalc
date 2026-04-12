@@ -13,16 +13,26 @@ def personal_rule():
     )
 
 def test_personal_commission_below_threshold(personal_rule):
-    assert calculate_personal_commission(2500, personal_rule) == 0.0
+    commission, rate = calculate_personal_commission(2500, personal_rule)
+    assert commission == 0.0
+    assert rate == 0.0
 
 def test_personal_commission_at_threshold(personal_rule):
-    assert calculate_personal_commission(3000, personal_rule) == 600.0
+    commission, rate = calculate_personal_commission(3000, personal_rule)
+    assert commission == 600.0
+    assert rate == 20.0
 
 def test_personal_commission_above_threshold(personal_rule):
-    assert calculate_personal_commission(5000, personal_rule) == 1000.0
+    commission, rate = calculate_personal_commission(5000, personal_rule)
+    assert commission == 1000.0
+    assert rate == 20.0
 
 def test_personal_commission_high_amount(personal_rule):
-    assert calculate_personal_commission(15000, personal_rule) == 3000.0
+    commission, rate = calculate_personal_commission(15000, personal_rule)
+    assert commission == 3000.0
+    assert rate == 20.0
 
 def test_personal_commission_zero(personal_rule):
-    assert calculate_personal_commission(0, personal_rule) == 0.0
+    commission, rate = calculate_personal_commission(0, personal_rule)
+    assert commission == 0.0
+    assert rate == 0.0
