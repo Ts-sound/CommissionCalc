@@ -9,6 +9,7 @@ from src.models.person import Person
 from src.models.group import Group
 from src.models.role import Role
 from src.ui.utils import configure_treeview_center, configure_treeview_grid
+from src.ui.export_dialog import ExportDialog
 from src.utils.logger import get_logger
 
 class MainWindow:
@@ -410,17 +411,39 @@ class MainWindow:
             messagebox.showwarning("提示", "请先计算提成")
             return
         
+        dialog = ExportDialog(self.root, self.people, "config")
+        if not dialog.result:
+            return
+        
         file_path = filedialog.asksaveasfilename(title="保存结果Excel文件", defaultextension=".xlsx", filetypes=[("Excel文件", "*.xlsx")])
-        if file_path:
-            results = []
-            for item in self.result_tree.get_children():
-                values = self.result_tree.item(item)["values"]
-                person = next((p for p in self.people.values() if p.name == values[0]), None)
+        if not file_path:
+            return
+        
+        if dialog.order:
+            results = self._build_results_by_order(dialog.order)
+        else:
+            results = self._build_results_from_tree()
+        
+        self.excel_repo.export_results(results, file_path)
+        messagebox.showinfo("导出成功", f"结果已保存到 {file_path}")
+    
+    def _build_results_by_order(self, order):
+        results = []
+        result_map = {}
+        for item in self.result_tree.get_children():
+            values = self.result_tree.item(item)["values"]
+            name = values[0]
+            result_map[name] = values
+        
+        for name in order:
+            if name in result_map:
+                values = result_map[name]
+                person = next((p for p in self.people.values() if p.name == name), None)
                 if person:
                     group = self.groups.get(person.group_id)
                     group_name = group.name if group else ""
                     results.append({
-                        "姓名": values[0],
+                        "姓名": name,
                         "业绩": person.performance,
                         "身份": person.role.value,
                         "组别": group_name,
@@ -430,9 +453,40 @@ class MainWindow:
                         "高业绩奖金": values[4],
                         "总提成": values[5]
                     })
-            
-            self.excel_repo.export_results(results, file_path)
-            messagebox.showinfo("导出成功", f"结果已保存到 {file_path}")
+            else:
+                results.append({
+                    "姓名": name,
+                    "业绩": 0,
+                    "身份": "",
+                    "组别": "",
+                    "个人提成": 0,
+                    "团队提成": 0,
+                    "管理提成": 0,
+                    "高业绩奖金": 0,
+                    "总提成": 0
+                })
+        return results
+    
+    def _build_results_from_tree(self):
+        results = []
+        for item in self.result_tree.get_children():
+            values = self.result_tree.item(item)["values"]
+            person = next((p for p in self.people.values() if p.name == values[0]), None)
+            if person:
+                group = self.groups.get(person.group_id)
+                group_name = group.name if group else ""
+                results.append({
+                    "姓名": values[0],
+                    "业绩": person.performance,
+                    "身份": person.role.value,
+                    "组别": group_name,
+                    "个人提成": values[1],
+                    "团队提成": values[2],
+                    "管理提成": values[3],
+                    "高业绩奖金": values[4],
+                    "总提成": values[5]
+                })
+        return results
     
     def add_person(self):
         from src.ui.dialogs import PersonDialog
