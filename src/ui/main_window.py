@@ -260,6 +260,31 @@ class MainWindow:
         self.threshold_entry.pack(side=tk.LEFT, padx=5)
         ttk.Label(threshold_frame, text="（低于此业绩不计入团队提成）").pack(side=tk.LEFT)
         
+        gm_frame = ttk.LabelFrame(rules_inner_frame, text="总主管提成配置", padding="5")
+        gm_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        gm_threshold_frame = ttk.Frame(gm_frame)
+        gm_threshold_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(gm_threshold_frame, text="总主管达标线（元）：").pack(side=tk.LEFT)
+        self.gm_threshold_entry = ttk.Entry(gm_threshold_frame, width=10)
+        self.gm_threshold_entry.insert(0, str(self.config.gm_eligible_threshold))
+        self.gm_threshold_entry.pack(side=tk.LEFT, padx=5)
+        ttk.Label(gm_threshold_frame, text="（低于此业绩不计入总主管团队提成）").pack(side=tk.LEFT)
+        
+        self.gm_tree = ttk.Treeview(gm_frame, columns=("下限", "上限", "提成比例"), show="headings", height=2)
+        self.gm_tree.heading("下限", text="下限")
+        self.gm_tree.heading("上限", text="上限")
+        self.gm_tree.heading("提成比例", text="提成比例")
+        self.gm_tree.column("下限", width=150)
+        self.gm_tree.column("上限", width=150)
+        self.gm_tree.column("提成比例", width=150)
+        configure_treeview_center(self.gm_tree)
+        self.gm_tree.pack(fill=tk.X)
+        
+        ttk.Button(gm_frame, text="添加阶梯", command=lambda: self.add_tier("gm")).pack(side=tk.LEFT, padx=5)
+        ttk.Button(gm_frame, text="编辑阶梯", command=lambda: self.edit_tier("gm")).pack(side=tk.LEFT, padx=5)
+        ttk.Button(gm_frame, text="删除阶梯", command=lambda: self.delete_tier("gm")).pack(side=tk.LEFT, padx=5)
+        
         management_frame = ttk.LabelFrame(rules_inner_frame, text="管理提成", padding="5")
         management_frame.pack(fill=tk.X, padx=5, pady=5)
         ttk.Label(management_frame, text="每人管理提成金额（元）：").pack(side=tk.LEFT)
@@ -522,6 +547,12 @@ class MainWindow:
             max_text = str(tier.max_amount) if tier.max_amount else "(空)"
             self.team_tree.insert("", tk.END, values=(tier.min_amount, max_text, f"{tier.rate*100}%"))
         
+        for item in self.gm_tree.get_children():
+            self.gm_tree.delete(item)
+        for tier in self.config.gm_commission.tiers:
+            max_text = str(tier.max_amount) if tier.max_amount else "(空)"
+            self.gm_tree.insert("", tk.END, values=(tier.min_amount, max_text, f"{tier.rate*100}%"))
+        
         for item in self.bonus_tree.get_children():
             self.bonus_tree.delete(item)
         for bonus in self.config.high_performance_bonuses:
@@ -535,22 +566,34 @@ class MainWindow:
             tier = Tier(min_amount=dialog.result["min_amount"], max_amount=dialog.result["max_amount"], rate=dialog.result["rate"])
             if tier_type == "personal":
                 self.config.personal_commission.tiers.append(tier)
-            else:
+            elif tier_type == "team":
                 self.config.team_commission.tiers.append(tier)
+            elif tier_type == "gm":
+                self.config.gm_commission.tiers.append(tier)
             self._refresh_rules_trees()
     
     def edit_tier(self, tier_type):
         from tkinter import messagebox
         from src.ui.dialogs import TierDialog
         
-        tree = self.personal_tree if tier_type == "personal" else self.team_tree
+        if tier_type == "personal":
+            tree = self.personal_tree
+        elif tier_type == "team":
+            tree = self.team_tree
+        else:
+            tree = self.gm_tree
         selected = tree.selection()
         if not selected:
             messagebox.showwarning("提示", "请先选择阶梯")
             return
         
         index = tree.index(selected[0])
-        tiers = self.config.personal_commission.tiers if tier_type == "personal" else self.config.team_commission.tiers
+        if tier_type == "personal":
+            tiers = self.config.personal_commission.tiers
+        elif tier_type == "team":
+            tiers = self.config.team_commission.tiers
+        else:
+            tiers = self.config.gm_commission.tiers
         tier = tiers[index]
         
         dialog = TierDialog(self.root, tier)
@@ -563,7 +606,12 @@ class MainWindow:
     def delete_tier(self, tier_type):
         from tkinter import messagebox
         
-        tree = self.personal_tree if tier_type == "personal" else self.team_tree
+        if tier_type == "personal":
+            tree = self.personal_tree
+        elif tier_type == "team":
+            tree = self.team_tree
+        else:
+            tree = self.gm_tree
         selected = tree.selection()
         if not selected:
             messagebox.showwarning("提示", "请先选择阶梯")
@@ -571,7 +619,12 @@ class MainWindow:
         
         if messagebox.askyesno("确认删除", "确定删除此阶梯吗？"):
             index = tree.index(selected[0])
-            tiers = self.config.personal_commission.tiers if tier_type == "personal" else self.config.team_commission.tiers
+            if tier_type == "personal":
+                tiers = self.config.personal_commission.tiers
+            elif tier_type == "team":
+                tiers = self.config.team_commission.tiers
+            else:
+                tiers = self.config.gm_commission.tiers
             tiers.pop(index)
             self._refresh_rules_trees()
     
@@ -628,6 +681,11 @@ class MainWindow:
         except ValueError:
             pass
         
+        try:
+            self.config.gm_eligible_threshold = float(self.gm_threshold_entry.get())
+        except ValueError:
+            pass
+        
         self.config_repo.save(self.config)
         self.calculator.config = self.config
         messagebox.showinfo("保存成功", "提成规则配置已保存")
@@ -641,6 +699,8 @@ class MainWindow:
             self.management_entry.insert(0, str(self.config.management_bonus_per_person))
             self.threshold_entry.delete(0, tk.END)
             self.threshold_entry.insert(0, str(self.config.eligible_performance_threshold))
+            self.gm_threshold_entry.delete(0, tk.END)
+            self.gm_threshold_entry.insert(0, str(self.config.gm_eligible_threshold))
             self._refresh_rules_trees()
     
     def show_help(self):
