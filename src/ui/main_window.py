@@ -473,7 +473,7 @@ class MainWindow:
                 if result:
                     self.result_tree.insert("", tk.END, values=(
                         name,
-                        f"{result.commission_rate:.4f}",
+                        result.commission_rate,
                         result.personal_commission,
                         result.team_commission,
                         result.management_bonus,
