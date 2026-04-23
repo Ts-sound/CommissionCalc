@@ -1,97 +1,122 @@
 # CommissionCalc
 
-一款基于 Python 开发的绩效提成自动计算工具。
+A Python-based performance commission calculation tool.
 
-## 功能特性
+**Language**: [English](README.md) | [中文](README.zh.md)
 
-- 粘贴文本导入业绩数据（支持制表符分隔格式）
-- 可视化人员配置管理
-- 可配置的提成规则设置
-- 自动计算多种提成类型
-- 详细的提成明细报表导出（Excel）
-- 自动修复历史配置数据
-- 详细计算日志便于排查问题
+## Features
 
-## 提成计算规则
+- Text paste import for performance data (tab-separated format)
+- Visual staff configuration management
+- Configurable commission rules
+- Automatic calculation of multiple commission types
+- Detailed commission report export (Excel)
+- Automatic repair of historical config data
+- Detailed calculation logs for troubleshooting
 
-### 个人业绩提成
-- 0-3000元: 0%
-- 3000元以上: 20%（全额计算）
+## Commission Rules
 
-### 团队业绩提成（组长/总主管）
-- 只累加达标业绩（>=达标线，默认3000元）
-- 包含组长/总主管自己的业绩
-- 0-10000元: 0%
-- 10000-50000元: 10%
-- 50000元以上: 20%（全额计算）
-- 达标线可在规则配置中修改
+### Personal Performance Commission
+- 0-3000: 0%
+- Above 3000: 20% (full amount)
 
-### 组长管理提成
-- 每个组员: 100元（不要求组员达标）
+### Team Performance Commission (Team Leader/Manager)
+- Only accumulates qualified performance (>= threshold, default 3000)
+- Includes leader/manager's own performance
+- 0-10000: 0%
+- 10000-50000: 10%
+- Above 50000: 20% (full amount)
+- Threshold configurable in rules
 
-### 高业绩奖金
-- 不累加，取最高梯度
-- 达到2万: 500元
-- 达到3万: 1000元
-- 达到5万: 2000元
+### Team Leader Management Commission
+- Per member: 100 (member qualification not required)
 
-## 技术架构
+### High Performance Bonus
+- Non-cumulative, takes highest tier
+- 20k: 500
+- 30k: 1000
+- 50k: 2000
 
-- **语言**: Python 3.8+
-- **UI框架**: Tkinter
-- **数据处理**: pandas + openpyxl
-- **配置存储**: JSON文件
-- **测试框架**: pytest
+## Technical Architecture
 
-### 分层架构
+- **Language**: Python 3.8+
+- **UI Framework**: Tkinter
+- **Data Processing**: pandas + openpyxl
+- **Config Storage**: JSON files
+- **Testing**: pytest
+
+### Layered Architecture
 
 ```
 src/
-├── models/        # 数据模型层
-├── services/      # 业务逻辑层
-├── repositories/  # 数据访问层
-└── ui/            # 用户界面层
+├── models/        # Data models
+├── services/      # Business logic
+├── repositories/  # Data access
+└── ui/            # User interface
 ```
 
-## 安装
+## Installation
+
+### Option 1: Virtual Environment (Recommended)
+
+```powershell
+# Auto-create environment and install dependencies
+.\scripts\setup-venv.ps1
+
+# Activate environment
+.\.venv\Scripts\Activate.ps1
+
+# Run program
+python main.py
+```
+
+### Option 2: Global Install
 
 ```bash
 pip install -r requirements.txt
+python main.py
 ```
 
-## 运行
+## Running
 
 ```bash
 python main.py
 ```
 
-## 打包
+## Packaging
 
 ```powershell
-.\scripts\build.ps1
+# Activate virtual environment
+.\.venv\Scripts\Activate.ps1
+
+# Package as single executable
+pyinstaller -F -w -n "PerformanceCalc" main.py
 ```
 
-输出：`dist\CommissionCalc.exe`
+Output: `dist\PerformanceCalc.exe`
 
-## 测试
+## Testing
 
 ```bash
+# Run all tests
 pytest tests/ -v
+
+# Run with coverage
 pytest tests/ --cov=src --cov-report=html
 ```
 
-## 项目状态
+## Project Status
 
-已完成全部功能：
-- ✅ 数据模型层（Person, Group, CommissionRule, Config）
-- ✅ 业务逻辑层（提成计算逻辑）
-- ✅ 数据访问层（Excel导入导出、配置持久化）
-- ✅ 用户界面层（主窗口、人员管理、规则配置）
-- ✅ 日志系统
-- ✅ 总主管独立提成配置（v0.3.0）
-- ✅ 自定义导出顺序（v0.3.0）
-- ✅ 60个单元测试，全部通过
+All features completed:
+- ✅ Data models (Person, Group, CommissionRule, Config)
+- ✅ Business logic (commission calculation)
+- ✅ Data access (Excel import/export, config persistence)
+- ✅ User interface (main window, staff management, rules config)
+- ✅ Logging system
+- ✅ Independent manager commission config (v0.3.0)
+- ✅ Custom export order (v0.3.0)
+- ✅ 60 unit tests, all passing
 
-## 许可证
+## License
 
 MIT License
