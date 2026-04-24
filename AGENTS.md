@@ -98,16 +98,19 @@ logger.error("错误信息")
 ```
 CommissionCalc/
 ├── config/              # 配置文件目录
-│   ├── config.json      # 主配置文件
-│   └── commission.json  # 提成规则配置
+│   └── __init__.py      # (运行时生成 config.json, commission.json)
 ├── docs/                # 文档目录
 │   ├── design/          # 设计文档
+│   │   ├── README.md    # 系统架构设计
+│   │   └── ui-design.md # UI 设计文档
 │   ├── plans/           # 实施计划
+│   ├── workflow/        # 工作流文档
 │   ├── requirements.md  # 需求文档
 │   └── terminology.md   # 术语定义
-├── log/                 # 日志文件目录
+├── log/                 # 日志文件目录 (运行时生成)
 ├── scripts/             # 脚本目录
-│   └── build.ps1        # Windows 打包脚本
+│   ├── build.ps1        # Windows 打包脚本
+│   └── setup-venv.ps1   # 虚拟环境创建脚本
 ├── src/                 # 源代码目录
 │   ├── models/          # 数据模型
 │   ├── services/        # 业务逻辑
@@ -117,11 +120,16 @@ CommissionCalc/
 ├── tests/               # 测试目录
 │   ├── models/          # 模型测试
 │   ├── services/        # 服务测试
-│   └── repositories/    # 数据访问测试
+│   ├── repositories/    # 数据访问测试
+│   └── conftest.py      # 共享 fixtures
+├── temp/                # 临时文件 (不提交)
 ├── main.py              # 程序入口
+├── pyproject.toml       # 项目配置
 ├── requirements.txt     # 依赖清单
-├── README.md            # 项目说明
-└── AGENTS.md            # 本文件
+├── README.md            # 项目说明 (英文)
+├── README.zh.md         # 项目说明 (中文)
+├── AGENTS.md            # 本文件 (项目规范)
+└── LICENSE              # MIT 许可证
 ```
 
 ## 命名规范
